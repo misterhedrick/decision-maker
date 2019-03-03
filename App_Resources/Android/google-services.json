@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "279610828282",
+    "firebase_url": "https://decision-maker-app.firebaseio.com",
+    "project_id": "decision-maker-app",
+    "storage_bucket": "decision-maker-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:279610828282:android:1d5be76a719798f3",
+        "android_client_info": {
+          "package_name": "com.hedrickdesigns.decisionmaker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "279610828282-fjmf729ug5iv91p753q6d7aru27o4q8n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7qvABFQ40byO-asgaTBKdNXxygR7SLGM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
