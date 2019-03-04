@@ -11,6 +11,9 @@ The ActionBar is the NativeScript common abstraction over the Android ActionBar 
 http://docs.nativescript.org/ui/action-bar
 -->
 <ActionBar title="My App" class="action-bar">
+    <ActionItem (tap)="logout()">
+        <Button text="Logout" class="action-item"></Button>
+    </ActionItem>
 </ActionBar>
 
 <!--
@@ -26,8 +29,7 @@ class names available for styling your app at https://docs.nativescript.org/ui/t
 <StackLayout class="page">
     <ListView [items]="items" class="list-group">
         <ng-template let-item="item">
-            <Label [nsRouterLink]="['/item', item.id]" [text]="item.name"
-                class="list-group-item"></Label>
+            <Label [nsRouterLink]="['/item', item.id]" [text]="item.name" class="list-group-item"></Label>
         </ng-template>
     </ListView>
 </StackLayout>

@@ -1,12 +1,12 @@
 import { NgModule, NO_ERRORS_SCHEMA } from "@angular/core";
 import { NativeScriptModule } from "nativescript-angular/nativescript.module";
-import { NativeScriptHttpModule } from "nativescript-angular/http";
-import { NativeScriptRouterModule } from "nativescript-angular/router";
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { BackendService, FirebaseService, UtilsService } from "./services";
 import { ItemsComponent } from "./item/items.component";
 import { ItemDetailComponent } from "./item/item-detail.component";
+import { AuthGuard } from "./auth/auth-guard.service";
+import { LoginComponent } from './auth/login/login.component';
 
 // Uncomment and add to NgModule imports if you need to use two-way binding
 // import { NativeScriptFormsModule } from "nativescript-angular/forms";
@@ -20,17 +20,18 @@ import { ItemDetailComponent } from "./item/item-detail.component";
     imports: [
         NativeScriptModule,
         AppRoutingModule,
-        NativeScriptHttpModule,
     ],
     declarations: [
         AppComponent,
         ItemsComponent,
-        ItemDetailComponent
+        ItemDetailComponent,
+        LoginComponent
     ],
     providers: [
         BackendService,
         FirebaseService,
-        UtilsService
+        UtilsService,
+        AuthGuard
     ],
     schemas: [
         NO_ERRORS_SCHEMA
