@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FirebaseService } from "../services/firebase.service";
 import { Router } from "@angular/router";
 import { RouterExtensions } from 'nativescript-angular/router/router-extensions';
-import * as imagepicker from "nativescript-imagepicker";
+const imagepicker = require("nativescript-imagepicker");
 
 @Component({
   selector: 'ns-images',
@@ -19,6 +19,14 @@ export class ImagesComponent {
   private imagePath: string;
   private uploadedImageName: string;
   list: any;
+
+  imageAssets = [];
+  imageSrc: any;
+  isSingleMode: boolean = true;
+  thumbSize: number = 80;
+  previewSize: number = 300;
+
+
   constructor(private firebaseService: FirebaseService, private routerExtensions: RouterExtensions) { }
 
   uploadImage() {
@@ -36,23 +44,26 @@ export class ImagesComponent {
 
   pickImage() {
     let context = imagepicker.create({
-      mode: "multiple", // use "multiple" for multiple selection
-      maximumNumberOfSelection: 5
+      mode: "single" // use "multiple" for multiple selection
     });
+    this.startSelection(context);
+  }
+
+  private startSelection(context) {
+    let that = this;
     context
       .authorize()
       .then(function () {
         return context.present();
       })
       .then(function (selection) {
+        console.log("Selection done:");
         selection.forEach(function (selected) {
-          // process the selected image
+          console.log(" - " + selected.uri);
         });
-        console.log(selection);
       }).catch(function (e) {
-        // process error
+        console.log(e);
       });
-
   }
 
   logout() {

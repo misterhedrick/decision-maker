@@ -5,6 +5,7 @@ import firebase = require("nativescript-plugin-firebase");
 import { Observable, BehaviorSubject } from 'rxjs';
 import { UtilsService } from './utils.service';
 import { share } from 'rxjs/operators';
+const fs = require("tns-core-modules/file-system");
 
 @Injectable()
 export class FirebaseService {
@@ -175,11 +176,15 @@ export class FirebaseService {
   }
 
   uploadFile(localPath: string, file?: any): Promise<any> {
+    let appPath = fs.knownFolders.currentApp().path;
+    let imagepath = appPath + "/app/assets/camera.png";
     let filename = this.utils.getFilename(localPath);
-    let remotePath = `${filename}`;
+    //let remotePath = `${filename}`;
+    console.log('filename', appPath);
+    console.log('remote path', imagepath);
     return firebase.storage.uploadFile({
-      remoteFullPath: remotePath,
-      localFullPath: localPath,
+      remoteFullPath: 'uploads/' + filename,
+      localFullPath: imagepath,
       onProgress: function (status) {
         console.log("Uploaded fraction: " + status.fractionCompleted);
         console.log("Percentage complete: " + status.percentageCompleted);
