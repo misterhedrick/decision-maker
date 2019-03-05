@@ -7,6 +7,7 @@ import { ItemsComponent } from "./item/items.component";
 import { ItemDetailComponent } from "./item/item-detail.component";
 import { AuthGuard } from "./auth/auth-guard.service";
 import { LoginComponent } from './auth/login/login.component';
+import { ImagesComponent } from './images/images.component';
 
 // Uncomment and add to NgModule imports if you need to use two-way binding
 // import { NativeScriptFormsModule } from "nativescript-angular/forms";
@@ -25,7 +26,8 @@ import { LoginComponent } from './auth/login/login.component';
         AppComponent,
         ItemsComponent,
         ItemDetailComponent,
-        LoginComponent
+        LoginComponent,
+        ImagesComponent
     ],
     providers: [
         BackendService,

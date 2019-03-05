@@ -40,7 +40,7 @@ export class LoginComponent {
     this.firebaseService.login(this.user)
       .then(() => {
         this.isAuthenticating = false;
-        this.routerExtensions.navigate(["/"], { clearHistory: true });
+        this.routerExtensions.navigate(["/images"], { clearHistory: true });
 
       })
       .catch((message: any) => {

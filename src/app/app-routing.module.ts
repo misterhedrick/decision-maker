@@ -6,12 +6,14 @@ import { ItemsComponent } from "./item/items.component";
 import { ItemDetailComponent } from "./item/item-detail.component";
 import { LoginComponent } from "./auth/login/login.component";
 import { AuthGuard } from "./auth/auth-guard.service";
+import { ImagesComponent } from "./images/images.component";
 
 const routes: Routes = [
-    { path: "", component: ItemsComponent, canActivate: [AuthGuard] },
+    { path: "", component: ItemsComponent },
     { path: "login", component: LoginComponent },
-    { path: "items", component: ItemsComponent, canActivate: [AuthGuard] },
-    { path: "item/:id", component: ItemDetailComponent, canActivate: [AuthGuard] },
+    { path: "images", component: ImagesComponent, canActivate: [AuthGuard] },
+    { path: "items", component: ItemsComponent },
+    { path: "item/:id", component: ItemDetailComponent },
 ];
 
 @NgModule({
