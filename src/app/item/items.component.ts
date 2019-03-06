@@ -23,7 +23,7 @@ export class ItemsComponent implements OnInit {
     }
     logout() {
         this.firebaseService.logout();
-        this.routerExtensions.navigate(["/login"], { clearHistory: true });
+        this.routerExtensions.navigate(["/"], { clearHistory: true });
     }
 
     navigate() {
@@ -31,16 +31,9 @@ export class ItemsComponent implements OnInit {
     }
     choose() {
         let itemNumber = Math.floor(Math.random() * (this.itemService.getItems().length) + 1);
-        console.log(itemNumber);
-        console.log(this.itemService.getItem(itemNumber).name);
-        this.showDecision(this.itemService.getItem(itemNumber).name);
-    }
-
-    showDecision(decision: string) {
         prompt({
-            title: "Go Eat At " + decision,
+            title: "Go Eat At " + this.itemService.getItem(itemNumber).name,
             okButtonText: "Ok",
         });
     }
-
 }

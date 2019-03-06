@@ -5,7 +5,7 @@ import firebase = require("nativescript-plugin-firebase");
 import { Observable, BehaviorSubject } from 'rxjs';
 import { UtilsService } from './utils.service';
 import { share } from 'rxjs/operators';
-const fs = require("tns-core-modules/file-system");
+import { knownFolders, path, Folder, File } from "tns-core-modules/file-system";
 
 @Injectable()
 export class FirebaseService {
@@ -17,6 +17,26 @@ export class FirebaseService {
   items: BehaviorSubject<Array<Gift>> = new BehaviorSubject([]);
 
   private _allItems: Array<Gift> = [];
+
+  uploadFile(localPath: string, file?: any): Promise<any> {
+    let appPath = knownFolders.currentApp().path;
+
+    let imageurl = "/Users/e060341/Library/Developer/CoreSimulator/Devices/1239A73A-8063-4144-B85D-FBFBE4811E1F/data/Media/DCIM/100APPLE/IMG_0005.JPG";
+    let imagepath = appPath + "/app/assets/camera2.png";
+    let filename = this.utils.getFilename(localPath);
+    //let remotePath = `${filename}`;
+    // console.log('filename', appPath);
+    // console.log('remote path', imagepath);
+    // console.log('image url', imageurl)
+    return firebase.storage.uploadFile({
+      remoteFullPath: 'uploads/' + 'new-image',
+      localFullPath: imagepath,
+      onProgress: function (status) {
+        // console.log("Uploaded fraction: " + status.fractionCompleted);
+        // console.log("Percentage complete: " + status.percentageCompleted);
+      }
+    });
+  }
 
   register(user: User) {
     return firebase.createUser({
@@ -175,22 +195,7 @@ export class FirebaseService {
       .catch(this.handleErrors);
   }
 
-  uploadFile(localPath: string, file?: any): Promise<any> {
-    let appPath = fs.knownFolders.currentApp().path;
-    let imagepath = appPath + "/app/assets/camera.png";
-    let filename = this.utils.getFilename(localPath);
-    //let remotePath = `${filename}`;
-    console.log('filename', appPath);
-    console.log('remote path', imagepath);
-    return firebase.storage.uploadFile({
-      remoteFullPath: 'uploads/' + filename,
-      localFullPath: imagepath,
-      onProgress: function (status) {
-        console.log("Uploaded fraction: " + status.fractionCompleted);
-        console.log("Percentage complete: " + status.percentageCompleted);
-      }
-    });
-  }
+
 
   getDownloadUrl(remoteFilePath: string): Promise<any> {
     return firebase.storage.getDownloadUrl({
