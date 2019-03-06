@@ -5,7 +5,7 @@ import { ItemService } from "./item.service";
 import { FirebaseService } from "../services/firebase.service";
 import { Router } from "@angular/router";
 import { RouterExtensions } from 'nativescript-angular/router/router-extensions';
-
+import { prompt } from "ui/dialogs";
 @Component({
     selector: "ns-items",
     moduleId: module.id,
@@ -28,6 +28,19 @@ export class ItemsComponent implements OnInit {
 
     navigate() {
         this.routerExtensions.navigate(["/images"], { clearHistory: true });
+    }
+    choose() {
+        let itemNumber = Math.floor(Math.random() * (this.itemService.getItems().length) + 1);
+        console.log(itemNumber);
+        console.log(this.itemService.getItem(itemNumber).name);
+        this.showDecision(this.itemService.getItem(itemNumber).name);
+    }
+
+    showDecision(decision: string) {
+        prompt({
+            title: "Go Eat At " + decision,
+            okButtonText: "Ok",
+        });
     }
 
 }
