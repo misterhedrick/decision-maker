@@ -18,19 +18,12 @@ export class FirebaseService {
 
   private _allItems: Array<Gift> = [];
 
-  uploadFile(localPath: string, file?: any): Promise<any> {
-    let appPath = knownFolders.currentApp().path;
+  uploadFile(imagePath: string, filename: string, file?: any): Promise<any> {
+    //let imagePath = knownFolders.temp().getFolder("100APPLE").path
 
-    let imageurl = "/Users/e060341/Library/Developer/CoreSimulator/Devices/1239A73A-8063-4144-B85D-FBFBE4811E1F/data/Media/DCIM/100APPLE/IMG_0005.JPG";
-    let imagepath = appPath + "/app/assets/camera2.png";
-    let filename = this.utils.getFilename(localPath);
-    //let remotePath = `${filename}`;
-    // console.log('filename', appPath);
-    // console.log('remote path', imagepath);
-    // console.log('image url', imageurl)
     return firebase.storage.uploadFile({
-      remoteFullPath: 'uploads/' + 'new-image',
-      localFullPath: imagepath,
+      remoteFullPath: 'uploads/' + filename,
+      localFullPath: imagePath,
       onProgress: function (status) {
         // console.log("Uploaded fraction: " + status.fractionCompleted);
         // console.log("Percentage complete: " + status.percentageCompleted);
