@@ -6,7 +6,7 @@ import { Observable, BehaviorSubject } from 'rxjs';
 import { UtilsService } from './utils.service';
 import { share } from 'rxjs/operators';
 import { knownFolders, path, Folder, File } from "tns-core-modules/file-system";
-
+import * as fs from "file-system";
 @Injectable()
 export class FirebaseService {
   constructor(
@@ -29,6 +29,31 @@ export class FirebaseService {
         // console.log("Percentage complete: " + status.percentageCompleted);
       }
     });
+  }
+
+  getImages() {
+    const documents = fs.knownFolders.documents();
+    const logoPath = documents.path + "/camera.png";
+
+    // this will create or overwrite a local file in the app's documents folder
+    const localLogoFile = documents.getFile("camera.png");
+
+    // now download the file with either of the options below:
+    firebase.storage.downloadFile({
+      // the full path of an existing file in your Firebase storage
+      remoteFullPath: 'uploads/camera.png',
+      // option 1: a file-system module File object
+      localFile: fs.File.fromPath(logoPath),
+      // option 2: a full file path (ignored if 'localFile' is set)
+      localFullPath: logoPath
+    }).then(
+      function (uploadedFile) {
+        console.log("File downloaded to the requested location");
+      },
+      function (error) {
+        console.log("File download error: " + error);
+      }
+    );
   }
 
   register(user: User) {

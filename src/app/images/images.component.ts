@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import * as fs from "file-system";
 import * as imagepicker from "nativescript-imagepicker";
 import { knownFolders, path } from "file-system";
@@ -9,17 +9,20 @@ import { sampleTime, concatMap, scan, map } from 'rxjs/operators';
 import { ImageSource } from 'tns-core-modules/image-source'
 import { FirebaseService } from "../services/firebase.service";
 import { RouterExtensions } from 'nativescript-angular/router/router-extensions';
+import { Image } from "tns-core-modules/ui/image";
+
 @Component({
   selector: 'ns-images',
   templateUrl: './images.component.html',
   styleUrls: ['./images.component.css'],
   moduleId: module.id,
 })
-export class ImagesComponent {
+export class ImagesComponent implements OnInit {
+  tempFolderPath = knownFolders.temp().getFolder("nsimagepicker").path;
+  imagesToShow: string[];
   public event = new BehaviorSubject<any>({});
   private url: string;
   private session: any;
-
   public showWelcome = true;
   public currentFileNameBeingUploaded = "";
   public eventLog = this.event.pipe(
@@ -45,7 +48,10 @@ export class ImagesComponent {
 
     this.session = bgHttp.session("image-upload");
   }
-
+  ngOnInit() {
+    //this.firebaseService.getImages();
+    this.imagesToShow = [this.tempFolderPath + '/1552055644070.jpg', this.tempFolderPath + '/1551900259826.jpg'];
+  }
   public onSelectImageTap() {
     let context = imagepicker.create({
       mode: "single"
@@ -145,8 +151,8 @@ export class ImagesComponent {
     return new Promise((resolve) => {
       if (isIOS) { // create file from image asset and return its path
 
-        const tempFolderPath = knownFolders.temp().getFolder("nsimagepicker").path;
-        const tempFilePath = path.join(tempFolderPath, `${Date.now()}.jpg`);
+
+        const tempFilePath = path.join(this.tempFolderPath, `${Date.now()}.jpg`);
 
         // ----> ImageSource.saveToFile() implementation
         const imageSource = new ImageSource();

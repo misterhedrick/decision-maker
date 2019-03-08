@@ -27,12 +27,8 @@
   </GridLayout>
 
   <StackLayout *ngIf="showWelcome" verticalAlignment="middle">
-    <Label class="m-10 nativescript-label text" text="{N}"></Label>
-    <Label class="m-10 text" *ngIf="showWelcome" text="This sample app shows how to pick an image with"
-      textWrap="true"></Label>
-    <Label class="m-10 text plugin" text="nativescript-imagepicker"></Label>
-    <Label class="m-10 text" *ngIf="showWelcome" text="and upload it using" textWrap="true"></Label>
-    <Label class="m-10 text plugin" text="nativescript-background-http"></Label>
+    <Image *ngFor="let image of imagesToShow" src="{{image}}" stretch="none" class="img-rounded p-l-15 p-r-15 p-t-15">
+    </Image>
   </StackLayout>
   <Button class="m-b-10 m-t-10 t-20" row="1" text="Choose image to upload" (tap)="onSelectImageTap($event)"></Button>
 </GridLayout>

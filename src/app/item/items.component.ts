@@ -5,7 +5,7 @@ import { ItemService } from "./item.service";
 import { FirebaseService } from "../services/firebase.service";
 import { Router } from "@angular/router";
 import { RouterExtensions } from 'nativescript-angular/router/router-extensions';
-import { prompt } from "ui/dialogs";
+import { alert } from "ui/dialogs";
 @Component({
     selector: "ns-items",
     moduleId: module.id,
@@ -31,7 +31,7 @@ export class ItemsComponent implements OnInit {
     }
     choose() {
         let itemNumber = Math.floor(Math.random() * (this.itemService.getItems().length) + 1);
-        prompt({
+        alert({
             title: "Go Eat At " + this.itemService.getItem(itemNumber).name,
             okButtonText: "Ok",
         });
