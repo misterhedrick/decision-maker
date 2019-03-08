@@ -1,34 +1,27 @@
 <ActionBar title="imagepicker + background-http" class="action-bar"></ActionBar>
 
-<GridLayout rows="*, auto">
-  <GridLayout *ngIf="!showWelcome" rows="auto auto auto, *">
-    <Progress [value]="(event | async).eventData ? (event | async).eventData.currentBytes : 0"
-      [maxValue]="(event | async).eventData ? (event | async).eventData.totalBytes : 0">
-    </Progress>
+<ListView [items]="imagesToShow">
+  <ng-template let-imageurl="item" let-i="index" let-odd="odd" let-even="even">
+    <StackLayout>
+      <ScrollView height="150">
+        <Image row="0" col="0" rowSpan="2" height="108" width="108" [src]="imageurl" class="thumb p-16"></Image>
+      </ScrollView>
+    </StackLayout>
+  </ng-template>
+</ListView>
 
-    <!-- <Label row="1" *ngIf="((event | async).eventData && (event | async).eventData.currentBytes !== NaN)"
-      class="m-10 text" [text]="'Transferred: ' + (event | async).eventData.currentBytes / 1000 + ' KB'"></Label> -->
 
-    <Label row="2" class="m-10 text" text="Events"></Label>
 
-    <ListView row="3" [items]="eventLog | async">
-      <ng-template let-item="item">
-        <StackLayout class="t-12">
-          <Label [text]="item.eventTitle" textWrap="true"></Label>
-          <Label *ngIf="item.eventData && item.eventData.error"
-            [text]="item.eventData ? 'Error: ' + item.eventData.error : ''" textWrap="true"></Label>
-          <Label *ngIf="item.eventData && item.eventData.body"
-            [text]="item.eventData ? 'Body: ' + item.eventData.body : ''" textWrap="true"></Label>
-          <Label *ngIf="item.eventData && item.eventData.raw"
-            [text]="item.eventData ? 'Raw: ' + item.eventData.raw : ''" textWrap="true"></Label>
-        </StackLayout>
+<!-- <ScrollView>
+  <StackLayout>
+    <ListView height="" [items]="imagesToShow">
+      <ng-template let-imageurl="item" let-i="index" let-odd="odd" let-even="even">
+        <Image row="0" col="0" rowSpan="2" height="108" width="108" [src]="imageurl" class="thumb p-16"></Image>
       </ng-template>
     </ListView>
-  </GridLayout>
-
-  <StackLayout *ngIf="showWelcome" verticalAlignment="middle">
-    <Image *ngFor="let image of imagesToShow" src="{{image}}" stretch="none" class="img-rounded p-l-15 p-r-15 p-t-15">
-    </Image>
   </StackLayout>
-  <Button class="m-b-10 m-t-10 t-20" row="1" text="Choose image to upload" (tap)="onSelectImageTap($event)"></Button>
-</GridLayout>
+</ScrollView> -->
+
+
+
+<!-- <Button class="m-b-10 m-t-10 t-20" row="1" text="Choose image to upload" (tap)="onSelectImageTap($event)"></Button> -->

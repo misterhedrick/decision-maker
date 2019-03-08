@@ -8,8 +8,11 @@ import { of, BehaviorSubject } from 'rxjs';
 import { sampleTime, concatMap, scan, map } from 'rxjs/operators';
 import { ImageSource } from 'tns-core-modules/image-source'
 import { FirebaseService } from "../services/firebase.service";
+import { ScrollEventData, ScrollView } from "tns-core-modules/ui/scroll-view";
 import { RouterExtensions } from 'nativescript-angular/router/router-extensions';
 import { Image } from "tns-core-modules/ui/image";
+import { EventData } from 'tns-core-modules/ui/page/page';
+const PhotoViewer = require("nativescript-photoviewer");
 
 @Component({
   selector: 'ns-images',
@@ -18,6 +21,8 @@ import { Image } from "tns-core-modules/ui/image";
   moduleId: module.id,
 })
 export class ImagesComponent implements OnInit {
+  imageFromURL1 = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/NativeScript_logo.png/220px-NativeScript_logo.png";
+  imageFromURL2 = "https://d2odgkulk9w7if.cloudfront.net/images/default-source/default-album/http-nativescript.png?sfvrsn=5f400ffe_0";
   tempFolderPath = knownFolders.temp().getFolder("nsimagepicker").path;
   imagesToShow: string[];
   public event = new BehaviorSubject<any>({});
@@ -45,12 +50,14 @@ export class ImagesComponent implements OnInit {
       // avoiding upload error due to big response size
       this.url = "http://www.csm-testcenter.org/test";
     }
-
     this.session = bgHttp.session("image-upload");
   }
   ngOnInit() {
     //this.firebaseService.getImages();
-    this.imagesToShow = [this.tempFolderPath + '/1552055644070.jpg', this.tempFolderPath + '/1551900259826.jpg'];
+    this.imagesToShow = [this.imageFromURL1, this.imageFromURL2, this.imageFromURL1, this.imageFromURL2,
+    this.imageFromURL1, this.imageFromURL2, this.imageFromURL1, this.imageFromURL2];
+    //this.imagesToShow = [this.tempFolderPath + '/1552055644070.jpg', this.tempFolderPath + '/1551900259826.jpg'];
+    //this.openGallery(this.imagesToShow);
   }
   public onSelectImageTap() {
     let context = imagepicker.create({
@@ -58,7 +65,6 @@ export class ImagesComponent implements OnInit {
     });
     this.startSelection(context);
   }
-
   // private resetEventLog() {
   //     this.eventLog = this.event.pipe(
   //         sampleTime(200),
@@ -68,7 +74,6 @@ export class ImagesComponent implements OnInit {
   //             return acc;
   //         }, []));
   // }
-
   private startSelection(context) {
     context
       .authorize()
@@ -78,10 +83,8 @@ export class ImagesComponent implements OnInit {
       .then((selection) => {
         this.showWelcome = false;
         // this.resetEventLog();
-
         console.log("Selection done: " + JSON.stringify(selection));
         let imageAsset = selection.length > 0 ? selection[0] : null;
-
         if (imageAsset) {
           this.getImageFilePath(imageAsset).then((path) => {
             console.log(`path: ${path}`);
@@ -143,38 +146,18 @@ export class ImagesComponent implements OnInit {
       androidAutoDeleteAfterUpload: false,
       androidNotificationTitle: "NativeScript HTTP background"
     };
-
     return request;
   }
 
   private getImageFilePath(imageAsset): Promise<string> {
     return new Promise((resolve) => {
       if (isIOS) { // create file from image asset and return its path
-
-
         const tempFilePath = path.join(this.tempFolderPath, `${Date.now()}.jpg`);
-
-        // ----> ImageSource.saveToFile() implementation
         const imageSource = new ImageSource();
         imageSource.fromAsset(imageAsset).then(source => {
           const saved = source.saveToFile(tempFilePath, 'png');
-          console.log(`saved: ${saved}`);
           resolve(tempFilePath);
         });
-        // <---- ImageSource.saveToFile() implementation
-
-        // ----> Native API implementation
-        // const options = PHImageRequestOptions.new();
-
-        // options.synchronous = true;
-        // options.version = PHImageRequestOptionsVersion.Current;
-        // options.deliveryMode = PHImageRequestOptionsDeliveryMode.HighQualityFormat;
-
-        // PHImageManager.defaultManager().requestImageDataForAssetOptionsResultHandler(imageAsset.ios, options, (nsData: NSData) => {
-        //     nsData.writeToFileAtomically(tempFilePath, true);
-        //     resolve(tempFilePath);
-        // });
-        // <---- Native API implementation
       } else { // return imageAsset.android, since it's the path of the file
         resolve(imageAsset.android);
       }
@@ -193,4 +176,18 @@ export class ImagesComponent implements OnInit {
       }
     });
   }
+
+  openGallery(images: string[]) {
+    let photoViewer = new PhotoViewer();
+    photoViewer.startIndex = 0; // start index for the fullscreen gallery
+    // Add to array and pass to showViewer
+    var myImages = [this.imageFromURL1, this.imageFromURL2];
+    photoViewer.showViewer(myImages);
+  }
+
+  galleryShowing() {
+    console.log(`gallery Loaded`);
+  }
+
+
 }
