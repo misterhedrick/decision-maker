@@ -9,6 +9,7 @@ import { UtilsService } from './utils.service';
 import { share } from 'rxjs/operators';
 import { knownFolders, path, Folder, File } from "tns-core-modules/file-system";
 import * as fs from "file-system";
+import { Item } from "../item/item";
 @Injectable()
 export class FirebaseService {
   constructor(
@@ -19,8 +20,8 @@ export class FirebaseService {
   items: BehaviorSubject<Array<Gift>> = new BehaviorSubject([]);
 
   private _allItems: Array<Gift> = [];
-  public restaurants: Array<string> = [];
-  public myRestaurants$: Observable<Array<string>>;
+  public restaurants: Array<Item> = [];
+  public myRestaurants$: Observable<Array<Item>>;
   public add(mainlist: string, listname: string, name: string): void {
     firebase.firestore().collection('restaurants')
       .add({ name: name })
@@ -37,30 +38,22 @@ export class FirebaseService {
       colRef.onSnapshot((snapshot: firestore.QuerySnapshot) => {
         this.zone.run(() => {
           this.restaurants = [];
-          snapshot.forEach(docSnap => this.restaurants.push(<any>docSnap.data()));
+          snapshot.forEach(docSnap =>
+            this.restaurants.push({ id: docSnap.id, name: docSnap.data().name, role: docSnap.data().name }));
           subscriber.next(this.restaurants);
         });
       });
     });
   }
 
-
-
-  public getRestaurants(): void {
-
-    const collectionRef: firestore.CollectionReference = firebase.firestore().collection('restaurants');
-    collectionRef.get()
-      .then((querySnapshot: firestore.QuerySnapshot) => {
-        querySnapshot.forEach(doc => {
-          this.restaurants.push(doc.data().name);
-          console.log(`${doc.id} => ${JSON.stringify(doc.data())}`);
-        });
-        console.log(this.restaurants);
+  public firestoreDelete(collectionName: string, docName: string): void {
+    firebase.firestore().collection(collectionName).doc(docName)
+      .delete()
+      .then(() => {
+        console.log(docName, 'from', collectionName, 'deleted');
       })
-
-      .catch(err => console.log("Get failed, error" + err));
+      .catch(err => console.log("Delete failed, error" + err));
   }
-
 
   public uploadFile(imagePath: string, filename: string, file?: any): Promise<any> {
     //let imagePath = knownFolders.temp().getFolder("100APPLE").path

@@ -7,6 +7,7 @@ import { Router } from "@angular/router";
 import { RouterExtensions } from 'nativescript-angular/router/router-extensions';
 import { alert } from "ui/dialogs";
 import { prompt } from "ui/dialogs";
+import { SwipeGestureEventData } from "tns-core-modules/ui/gestures/gestures";
 
 @Component({
     selector: "ns-items",
@@ -40,6 +41,12 @@ export class ItemsComponent implements OnInit {
             title: "Go Eat At " + this.itemService.getItem(itemNumber).name,
             okButtonText: "Ok",
         });
+    }
+
+    onSwipe(args: SwipeGestureEventData, id: string) {
+        if (args.direction === 2) {
+            this.firebaseService.firestoreDelete('restaurants', id);
+        }
     }
 
     addItem() {
