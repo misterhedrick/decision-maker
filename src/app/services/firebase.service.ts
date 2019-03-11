@@ -1,7 +1,9 @@
-import { Injectable, NgZone } from "@angular/core";
+import { Injectable, NgZone, OnInit } from "@angular/core";
 import { User, Gift } from "../models";
 import { BackendService } from "./backend.service";
-import firebase = require("nativescript-plugin-firebase");
+//import firebase = require("nativescript-plugin-firebase");
+const firebase = require("nativescript-plugin-firebase/app");
+import { firestore } from "nativescript-plugin-firebase";
 import { Observable, BehaviorSubject } from 'rxjs';
 import { UtilsService } from './utils.service';
 import { share } from 'rxjs/operators';
@@ -10,15 +12,57 @@ import * as fs from "file-system";
 @Injectable()
 export class FirebaseService {
   constructor(
-    private ngZone: NgZone,
+    private zone: NgZone,
     private utils: UtilsService
   ) { }
 
   items: BehaviorSubject<Array<Gift>> = new BehaviorSubject([]);
 
   private _allItems: Array<Gift> = [];
+  public restaurants: Array<string> = [];
+  public myRestaurants$: Observable<Array<string>>;
+  public add(mainlist: string, listname: string, name: string): void {
+    firebase.firestore().collection('restaurants')
+      .add({ name: name })
+      .then(() => {
+        console.log('added');
+      })
+      .catch(err => console.log("error adding, error: " + err));
+  }
 
-  uploadFile(imagePath: string, filename: string, file?: any): Promise<any> {
+
+  getRestaurantsObservable(): void {
+    this.myRestaurants$ = Observable.create(subscriber => {
+      const colRef: firestore.CollectionReference = firebase.firestore().collection("restaurants");
+      colRef.onSnapshot((snapshot: firestore.QuerySnapshot) => {
+        this.zone.run(() => {
+          this.restaurants = [];
+          snapshot.forEach(docSnap => this.restaurants.push(<any>docSnap.data()));
+          subscriber.next(this.restaurants);
+        });
+      });
+    });
+  }
+
+
+
+  public getRestaurants(): void {
+
+    const collectionRef: firestore.CollectionReference = firebase.firestore().collection('restaurants');
+    collectionRef.get()
+      .then((querySnapshot: firestore.QuerySnapshot) => {
+        querySnapshot.forEach(doc => {
+          this.restaurants.push(doc.data().name);
+          console.log(`${doc.id} => ${JSON.stringify(doc.data())}`);
+        });
+        console.log(this.restaurants);
+      })
+
+      .catch(err => console.log("Get failed, error" + err));
+  }
+
+
+  public uploadFile(imagePath: string, filename: string, file?: any): Promise<any> {
     //let imagePath = knownFolders.temp().getFolder("100APPLE").path
 
     return firebase.storage.uploadFile({
@@ -34,7 +78,7 @@ export class FirebaseService {
   getImages() {
     const documents = fs.knownFolders.documents();
     const logoPath = documents.path + "/camera.png";
-
+    console.log(logoPath);
     // this will create or overwrite a local file in the app's documents folder
     const localLogoFile = documents.getFile("camera.png");
 
@@ -105,7 +149,7 @@ export class FirebaseService {
       let path = 'Gifts';
 
       let onValueEvent = (snapshot: any) => {
-        this.ngZone.run(() => {
+        this.zone.run(() => {
           let results = this.handleSnapshot(snapshot.value);
           console.log(JSON.stringify(results))
           observer.next(results);
@@ -168,18 +212,7 @@ export class FirebaseService {
     this.items.next([...this._allItems]);
   }
 
-  add(gift: string) {
-    return firebase.push(
-      "/Gifts",
-      { "name": gift, "UID": BackendService.token, "date": 0 - Date.now(), "imagepath": "" }
-    ).then(
-      function (result: any) {
-        return 'Gift added to your wishlist!';
-      },
-      function (errorMessage: any) {
-        console.log(errorMessage);
-      });
-  }
+
 
   editGift(id: string, description: string, imagepath: string) {
     this.publishUpdates();

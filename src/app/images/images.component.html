@@ -1,27 +1,10 @@
 <ActionBar title="imagepicker + background-http" class="action-bar"></ActionBar>
 
-<ListView [items]="imagesToShow">
-  <ng-template let-imageurl="item" let-i="index" let-odd="odd" let-even="even">
-    <StackLayout>
-      <ScrollView height="150">
-        <Image row="0" col="0" rowSpan="2" height="108" width="108" [src]="imageurl" class="thumb p-16"></Image>
-      </ScrollView>
-    </StackLayout>
-  </ng-template>
-</ListView>
-
-
-
-<!-- <ScrollView>
-  <StackLayout>
-    <ListView height="" [items]="imagesToShow">
-      <ng-template let-imageurl="item" let-i="index" let-odd="odd" let-even="even">
-        <Image row="0" col="0" rowSpan="2" height="108" width="108" [src]="imageurl" class="thumb p-16"></Image>
-      </ng-template>
-    </ListView>
-  </StackLayout>
-</ScrollView> -->
-
-
+<ScrollView height="100%">
+  <FlexboxLayout flexWrap="wrap" justifyContent="space-around" width="100%">
+    <Image (tap)="openGallery(i)" *ngFor="let image of imagesToShow index as i" [src]="image" width="100" height="100">
+    </Image>
+  </FlexboxLayout>
+</ScrollView>
 
 <!-- <Button class="m-b-10 m-t-10 t-20" row="1" text="Choose image to upload" (tap)="onSelectImageTap($event)"></Button> -->

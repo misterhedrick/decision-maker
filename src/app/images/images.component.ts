@@ -23,8 +23,8 @@ const PhotoViewer = require("nativescript-photoviewer");
 export class ImagesComponent implements OnInit {
   imageFromURL1 = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/NativeScript_logo.png/220px-NativeScript_logo.png";
   imageFromURL2 = "https://d2odgkulk9w7if.cloudfront.net/images/default-source/default-album/http-nativescript.png?sfvrsn=5f400ffe_0";
-  tempFolderPath = knownFolders.temp().getFolder("nsimagepicker").path;
-  imagesToShow: string[];
+  tempFolderPath = fs.knownFolders.documents().path;
+  imagesToShow: string[] = [];
   public event = new BehaviorSubject<any>({});
   private url: string;
   private session: any;
@@ -54,10 +54,14 @@ export class ImagesComponent implements OnInit {
   }
   ngOnInit() {
     //this.firebaseService.getImages();
-    this.imagesToShow = [this.imageFromURL1, this.imageFromURL2, this.imageFromURL1, this.imageFromURL2,
-    this.imageFromURL1, this.imageFromURL2, this.imageFromURL1, this.imageFromURL2];
-    //this.imagesToShow = [this.tempFolderPath + '/1552055644070.jpg', this.tempFolderPath + '/1551900259826.jpg'];
-    //this.openGallery(this.imagesToShow);
+    console.log(this.tempFolderPath);
+    for (let x = 0; x < 25; x++) {
+      this.imagesToShow.push(this.tempFolderPath + '/camera.png');
+    }
+    for (let x = 0; x < 25; x++) {
+      this.imagesToShow.push(this.imageFromURL1);
+      this.imagesToShow.push(this.imageFromURL2);
+    }
   }
   public onSelectImageTap() {
     let context = imagepicker.create({
@@ -177,12 +181,12 @@ export class ImagesComponent implements OnInit {
     });
   }
 
-  openGallery(images: string[]) {
+  openGallery(index) {
     let photoViewer = new PhotoViewer();
-    photoViewer.startIndex = 0; // start index for the fullscreen gallery
+    photoViewer.startIndex = index; // start index for the fullscreen gallery
     // Add to array and pass to showViewer
     var myImages = [this.imageFromURL1, this.imageFromURL2];
-    photoViewer.showViewer(myImages);
+    photoViewer.showViewer(this.imagesToShow);
   }
 
   galleryShowing() {
