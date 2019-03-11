@@ -4,7 +4,6 @@ import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { BackendService, FirebaseService, UtilsService } from "./services";
 import { ItemsComponent } from "./item/items.component";
-import { ItemDetailComponent } from "./item/item-detail.component";
 import { AuthGuard } from "./auth/auth-guard.service";
 import { LoginComponent } from './auth/login/login.component';
 import { ImagesComponent } from './images/images.component';
@@ -25,7 +24,6 @@ import { ImagesComponent } from './images/images.component';
     declarations: [
         AppComponent,
         ItemsComponent,
-        ItemDetailComponent,
         LoginComponent,
         ImagesComponent
     ],

@@ -1,10 +1,12 @@
-<ActionBar title="imagepicker + background-http" class="action-bar"></ActionBar>
+<ActionBar title=";)" class="action-bar">
+  <ActionItem text="Logout" (tap)="logout()" ios.position="left"></ActionItem>
+  <ActionItem text="Add" (tap)="onSelectImageTap($event)" ios.position="right" android.position="popup"></ActionItem>
+</ActionBar>
 
 <ScrollView height="100%">
   <FlexboxLayout flexWrap="wrap" justifyContent="space-around" width="100%">
-    <Image (tap)="openGallery(i)" *ngFor="let image of imagesToShow index as i" [src]="image" width="100" height="100">
+    <Image (tap)="openGallery(i)" *ngFor="let image of firebaseService.myImages$ | async index as i" [src]="image.name"
+      width="100" height="100">
     </Image>
   </FlexboxLayout>
 </ScrollView>
-
-<!-- <Button class="m-b-10 m-t-10 t-20" row="1" text="Choose image to upload" (tap)="onSelectImageTap($event)"></Button> -->

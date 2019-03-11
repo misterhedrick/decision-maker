@@ -10,7 +10,8 @@
     <ListView [items]="firebaseService.myRestaurants$ | async" class="list-group">
         <ng-template let-item="item">
             <!-- <Label [nsRouterLink]="['/item', item.id]" [text]="item.name" class="list-group-item"></Label> -->
-            <Label [text]="item.name" (swipe)="onSwipe($event, item.id)" class="list-group-item"></Label>
+            <Label [text]="item.name" (swipe)="onSwipe($event, item.id)" (longpress)="editItem(item)"
+                class="list-group-item"></Label>
         </ng-template>
     </ListView>
     <Button text="Choose" (tap)="choose()" class="btn"></Button>

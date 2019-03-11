@@ -1,8 +1,8 @@
 import { Injectable, NgZone, OnInit } from "@angular/core";
 import { User, Gift } from "../models";
 import { BackendService } from "./backend.service";
-//import firebase = require("nativescript-plugin-firebase");
-const firebase = require("nativescript-plugin-firebase/app");
+import firebase = require("nativescript-plugin-firebase");
+const fb = require("nativescript-plugin-firebase/app");
 import { firestore } from "nativescript-plugin-firebase";
 import { Observable, BehaviorSubject } from 'rxjs';
 import { UtilsService } from './utils.service';
@@ -22,8 +22,12 @@ export class FirebaseService {
   private _allItems: Array<Gift> = [];
   public restaurants: Array<Item> = [];
   public myRestaurants$: Observable<Array<Item>>;
+  public images: Array<Item> = [];
+  public myImages$: Observable<Array<Item>>;
+  tempFolderPath = fs.knownFolders.documents().path;
+
   public add(mainlist: string, listname: string, name: string): void {
-    firebase.firestore().collection('restaurants')
+    fb.firestore().collection(listname)
       .add({ name: name })
       .then(() => {
         console.log('added');
@@ -34,7 +38,7 @@ export class FirebaseService {
 
   getRestaurantsObservable(): void {
     this.myRestaurants$ = Observable.create(subscriber => {
-      const colRef: firestore.CollectionReference = firebase.firestore().collection("restaurants");
+      const colRef: firestore.CollectionReference = fb.firestore().collection("restaurants");
       colRef.onSnapshot((snapshot: firestore.QuerySnapshot) => {
         this.zone.run(() => {
           this.restaurants = [];
@@ -47,13 +51,24 @@ export class FirebaseService {
   }
 
   public firestoreDelete(collectionName: string, docName: string): void {
-    firebase.firestore().collection(collectionName).doc(docName)
+    fb.firestore().collection(collectionName).doc(docName)
       .delete()
       .then(() => {
         console.log(docName, 'from', collectionName, 'deleted');
       })
       .catch(err => console.log("Delete failed, error" + err));
   }
+
+  public firestoreUpdate(collectionName: string, docName: string, newValue: string): void {
+    fb.firestore().collection(collectionName).doc(docName)
+      .update({ name: newValue })
+      .then(() => {
+        console.log(docName, 'updated');
+      })
+      .catch(err => console.log('Updating', docName, 'failed, error:', JSON.stringify(err)));
+  }
+
+
 
   public uploadFile(imagePath: string, filename: string, file?: any): Promise<any> {
     //let imagePath = knownFolders.temp().getFolder("100APPLE").path
@@ -65,32 +80,52 @@ export class FirebaseService {
         // console.log("Uploaded fraction: " + status.fractionCompleted);
         // console.log("Percentage complete: " + status.percentageCompleted);
       }
+    }).then(() => {
+      this.add('null', 'imagenames', filename);
+    })
+  }
+  getImageNames(): void {
+    this.myImages$ = Observable.create(subscriber => {
+      const colRef: firestore.CollectionReference = fb.firestore().collection('imagenames');
+      colRef.onSnapshot((snapshot: firestore.QuerySnapshot) => {
+        this.zone.run(() => {
+          this.images = [];
+          snapshot.forEach(docSnap =>
+            this.images.push({ id: docSnap.id, name: this.tempFolderPath + '/' + docSnap.data().name, role: docSnap.data().name }));
+          subscriber.next(this.images, this.getImages(this.images));
+        });
+      });
     });
   }
 
-  getImages() {
-    const documents = fs.knownFolders.documents();
-    const logoPath = documents.path + "/camera.png";
-    console.log(logoPath);
-    // this will create or overwrite a local file in the app's documents folder
-    const localLogoFile = documents.getFile("camera.png");
+  getImages(images: Array<Item>) {
+    images.forEach(function (image) {
+      const documents = fs.knownFolders.documents();
+      const logoPath = documents.path + '/' + image.role;
+      console.log(logoPath);
+      // this will create or overwrite a local file in the app's documents folder
+      const localLogoFile = documents.getFile(image.role);
 
-    // now download the file with either of the options below:
-    firebase.storage.downloadFile({
-      // the full path of an existing file in your Firebase storage
-      remoteFullPath: 'uploads/camera.png',
-      // option 1: a file-system module File object
-      localFile: fs.File.fromPath(logoPath),
-      // option 2: a full file path (ignored if 'localFile' is set)
-      localFullPath: logoPath
-    }).then(
-      function (uploadedFile) {
-        console.log("File downloaded to the requested location");
-      },
-      function (error) {
-        console.log("File download error: " + error);
-      }
-    );
+      // now download the file with either of the options below:
+      firebase.storage.downloadFile({
+        // the full path of an existing file in your Firebase storage
+        remoteFullPath: 'uploads/' + image.role,
+        // option 1: a file-system module File object
+        localFile: fs.File.fromPath(logoPath),
+        // option 2: a full file path (ignored if 'localFile' is set)
+        localFullPath: logoPath
+      }).then(
+        function (uploadedFile) {
+          console.log("File downloaded to the requested location");
+        },
+        function (error) {
+          console.log("File download error: " + error);
+        }
+      );
+    });
+
+
+
   }
 
   register(user: User) {
@@ -136,110 +171,6 @@ export class FirebaseService {
       }
     ).catch(this.handleErrors);
   }
-
-  getMyWishList(): Observable<any> {
-    return new Observable((observer: any) => {
-      let path = 'Gifts';
-
-      let onValueEvent = (snapshot: any) => {
-        this.zone.run(() => {
-          let results = this.handleSnapshot(snapshot.value);
-          console.log(JSON.stringify(results))
-          observer.next(results);
-        });
-      };
-      firebase.addValueEventListener(onValueEvent, `/${path}`);
-    }).pipe(share());
-  }
-
-  getMyGift(id: string): Observable<any> {
-    return new Observable((observer: any) => {
-      observer.next(this._allItems.filter(s => s.id === id)[0]);
-    }).pipe(share());
-  }
-
-  getMyMessage(): Observable<any> {
-    return new Observable((observer: any) => {
-      firebase.getRemoteConfig({
-        developerMode: false, // play with this boolean to get more frequent updates during development
-        cacheExpirationSeconds: 300, // 10 minutes, default is 12 hours.. set to a lower value during dev
-        properties: [{
-          key: "message",
-          default: "Happy Holidays!"
-        }]
-      }).then(
-        function (result) {
-          console.log("Fetched at " + result.lastFetch + (result.throttled ? " (throttled)" : ""));
-          for (let entry in result.properties) {
-            observer.next(result.properties[entry]);
-          }
-        }
-      );
-    }).pipe(share());
-  }
-
-
-
-  handleSnapshot(data: any) {
-    //empty array, then refill and filter
-    this._allItems = [];
-    if (data) {
-      for (let id in data) {
-        let result = (<any>Object).assign({ id: id }, data[id]);
-        if (BackendService.token === result.UID) {
-          this._allItems.push(result);
-        }
-      }
-      this.publishUpdates();
-    }
-    return this._allItems;
-  }
-
-  publishUpdates() {
-    // here, we sort must emit a *new* value (immutability!)
-    this._allItems.sort(function (a, b) {
-      if (a.date < b.date) return -1;
-      if (a.date > b.date) return 1;
-      return 0;
-    })
-    this.items.next([...this._allItems]);
-  }
-
-
-
-  editGift(id: string, description: string, imagepath: string) {
-    this.publishUpdates();
-    return firebase.update("/Gifts/" + id + "", {
-      description: description,
-      imagepath: imagepath
-    })
-      .then(
-        function (result: any) {
-          return 'You have successfully edited this gift!';
-        },
-        function (errorMessage: any) {
-          console.log(errorMessage);
-        });
-  }
-  editDescription(id: string, description: string) {
-    this.publishUpdates();
-    return firebase.update("/Gifts/" + id + "", {
-      description: description
-    })
-      .then(
-        function (result: any) {
-          return 'You have successfully edited the description!';
-        },
-        function (errorMessage: any) {
-          console.log(errorMessage);
-        });
-  }
-  delete(gift: Gift) {
-    return firebase.remove("/Gifts/" + gift.id + "")
-      .catch(this.handleErrors);
-  }
-
-
 
   getDownloadUrl(remoteFilePath: string): Promise<any> {
     return firebase.storage.getDownloadUrl({

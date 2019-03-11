@@ -40,7 +40,7 @@ export class ImagesComponent implements OnInit {
     // emit only logs for the this.currentFileNameBeingUploaded
     map(allLogs => allLogs.filter(logEntry => !!logEntry && logEntry.eventTitle && logEntry.eventTitle.indexOf(this.currentFileNameBeingUploaded) > 0)));
 
-  constructor(private firebaseService: FirebaseService) {
+  constructor(public firebaseService: FirebaseService, private routerExtensions: RouterExtensions) {
     // NOTE: using https://httpbin.org/post for testing purposes,
     // you'll need to use your own service in real-world app 
     if (isIOS) {
@@ -53,15 +53,9 @@ export class ImagesComponent implements OnInit {
     this.session = bgHttp.session("image-upload");
   }
   ngOnInit() {
-    //this.firebaseService.getImages();
+    this.firebaseService.getImageNames();
     console.log(this.tempFolderPath);
-    for (let x = 0; x < 25; x++) {
-      this.imagesToShow.push(this.tempFolderPath + '/camera.png');
-    }
-    for (let x = 0; x < 25; x++) {
-      this.imagesToShow.push(this.imageFromURL1);
-      this.imagesToShow.push(this.imageFromURL2);
-    }
+
   }
   public onSelectImageTap() {
     let context = imagepicker.create({
@@ -185,12 +179,20 @@ export class ImagesComponent implements OnInit {
     let photoViewer = new PhotoViewer();
     photoViewer.startIndex = index; // start index for the fullscreen gallery
     // Add to array and pass to showViewer
-    var myImages = [this.imageFromURL1, this.imageFromURL2];
-    photoViewer.showViewer(this.imagesToShow);
+    var myImages = [];
+    this.firebaseService.images.forEach(function (image) {
+      myImages.push(image.name);
+    });
+
+    photoViewer.showViewer(myImages);
   }
 
   galleryShowing() {
     console.log(`gallery Loaded`);
+  }
+  logout() {
+    this.firebaseService.logout();
+    this.routerExtensions.navigate(["/"], { clearHistory: true });
   }
 
 

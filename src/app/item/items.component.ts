@@ -36,9 +36,9 @@ export class ItemsComponent implements OnInit {
         this.routerExtensions.navigate(["/images"], { clearHistory: true });
     }
     choose() {
-        let itemNumber = Math.floor(Math.random() * (this.itemService.getItems().length) + 1);
+        let itemNumber = Math.floor(Math.random() * (this.firebaseService.restaurants.length));
         alert({
-            title: "Go Eat At " + this.itemService.getItem(itemNumber).name,
+            title: "Go Eat At " + this.firebaseService.restaurants[itemNumber].name,
             okButtonText: "Ok",
         });
     }
@@ -47,6 +47,18 @@ export class ItemsComponent implements OnInit {
         if (args.direction === 2) {
             this.firebaseService.firestoreDelete('restaurants', id);
         }
+    }
+
+    editItem(item: Item) {
+        prompt({
+            title: "New Item Name",
+            okButtonText: "Ok",
+            cancelButtonText: "Cancel"
+        }).then((data) => {
+            if (data.result) {
+                this.firebaseService.firestoreUpdate('restaurants', item.id, data.text.trim())
+            }
+        });
     }
 
     addItem() {
