@@ -53,9 +53,7 @@ export class ImagesComponent implements OnInit {
     this.session = bgHttp.session("image-upload");
   }
   ngOnInit() {
-    this.firebaseService.getImageNames();
-    console.log(this.tempFolderPath);
-
+    //this.firebaseService.getImageNames();
   }
   public onSelectImageTap() {
     let context = imagepicker.create({

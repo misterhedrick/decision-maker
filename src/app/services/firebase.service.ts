@@ -142,11 +142,11 @@ export class FirebaseService {
     )
   }
 
-  login(user: User) {
+  login(user: string, pw: string) {
     return firebase.login({
       type: firebase.LoginType.PASSWORD,
-      email: user.email,
-      password: user.password
+      email: user,
+      password: pw
     }).then((result: any) => {
       BackendService.token = result.uid;
       return JSON.stringify(result);

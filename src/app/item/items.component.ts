@@ -5,9 +5,10 @@ import { ItemService } from "./item.service";
 import { FirebaseService } from "../services/firebase.service";
 import { Router } from "@angular/router";
 import { RouterExtensions } from 'nativescript-angular/router/router-extensions';
-import { alert } from "ui/dialogs";
+import { alert, login, LoginResult, LoginOptions } from "ui/dialogs";
 import { prompt } from "ui/dialogs";
 import { SwipeGestureEventData } from "tns-core-modules/ui/gestures/gestures";
+import { User } from "../models";
 
 @Component({
     selector: "ns-items",
@@ -16,6 +17,8 @@ import { SwipeGestureEventData } from "tns-core-modules/ui/gestures/gestures";
 })
 export class ItemsComponent implements OnInit {
     items: Item[];
+    isLoggingIn = true;
+    isAuthenticating = false;
     // This pattern makes use of Angular’s dependency injection implementation to inject an instance of the ItemService service into this class.
     // Angular knows about this service because it is included in your app’s main NgModule, defined in app.module.ts.
     constructor(private itemService: ItemService, private routerExtensions: RouterExtensions, public firebaseService: FirebaseService,
@@ -31,14 +34,37 @@ export class ItemsComponent implements OnInit {
         this.firebaseService.logout();
         this.routerExtensions.navigate(["/"], { clearHistory: true });
     }
+    login() {
 
+        login({
+            title: "Login",
+            message: "Enter your user and pw",
+            okButtonText: "Login",
+            cancelButtonText: "Cancel",
+            userName: "",
+            password: ""
+        }).then((data) => {
+            if (data.result) {
+                this.firebaseService.login(data.userName, data.password)
+                    .then(() => {
+                        console.log('user and pass', data.userName + '  ' + data.password);
+                        this.isAuthenticating = false;
+                        this.routerExtensions.navigate(["/images"], { clearHistory: true });
+
+                    })
+                    .catch((message: any) => {
+                        this.isAuthenticating = false;
+                    });
+            }
+        });
+    }
     navigate() {
         this.routerExtensions.navigate(["/images"], { clearHistory: true });
     }
     choose() {
         let itemNumber = Math.floor(Math.random() * (this.firebaseService.restaurants.length));
         alert({
-            title: "Go Eat At " + this.firebaseService.restaurants[itemNumber].name,
+            title: this.firebaseService.restaurants[itemNumber].name,
             okButtonText: "Ok",
         });
     }
