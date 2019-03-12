@@ -20,34 +20,7 @@ export class LoginComponent {
 
   constructor(private firebaseService: FirebaseService,
     private routerExtensions: RouterExtensions
-  ) {
-    this.user = new User();
-    this.user.email = "user@nativescript.org";
-    this.user.password = "password";
-  }
-
-
-  submit() {
-    this.isAuthenticating = true;
-    if (this.isLoggingIn) {
-      this.login();
-    } else {
-      this.signUp();
-    }
-  }
-
-  login() {
-    this.firebaseService.login(this.user)
-      .then(() => {
-        this.isAuthenticating = false;
-        this.routerExtensions.navigate(["/images"], { clearHistory: true });
-
-      })
-      .catch((message: any) => {
-        this.isAuthenticating = false;
-      });
-  }
-
+  ) { }
   signUp() {
     this.firebaseService.register(this.user)
       .then(() => {

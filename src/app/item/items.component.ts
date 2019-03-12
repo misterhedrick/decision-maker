@@ -25,10 +25,8 @@ export class ItemsComponent implements OnInit {
         private router: Router) { }
 
     ngOnInit(): void {
-        console.log('firebase service getting lists');
         this.firebaseService.getRestaurantsObservable();
-        console.log(this.firebaseService.restaurants);
-        this.items = this.itemService.getItems();
+        //this.items = this.itemService.getItems();
     }
     logout() {
         this.firebaseService.logout();
@@ -41,8 +39,8 @@ export class ItemsComponent implements OnInit {
             message: "Enter your user and pw",
             okButtonText: "Login",
             cancelButtonText: "Cancel",
-            userName: "",
-            password: ""
+            userName: "user@nativescript.org",
+            password: "password"
         }).then((data) => {
             if (data.result) {
                 this.firebaseService.login(data.userName, data.password)
@@ -50,7 +48,6 @@ export class ItemsComponent implements OnInit {
                         console.log('user and pass', data.userName + '  ' + data.password);
                         this.isAuthenticating = false;
                         this.routerExtensions.navigate(["/images"], { clearHistory: true });
-
                     })
                     .catch((message: any) => {
                         this.isAuthenticating = false;

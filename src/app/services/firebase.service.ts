@@ -24,6 +24,7 @@ export class FirebaseService {
   public myRestaurants$: Observable<Array<Item>>;
   public images: Array<Item> = [];
   public myImages$: Observable<Array<Item>>;
+  public myImageurls: Array<String> = [];
   tempFolderPath = fs.knownFolders.documents().path;
 
   public add(mainlist: string, listname: string, name: string): void {
@@ -90,9 +91,15 @@ export class FirebaseService {
       colRef.onSnapshot((snapshot: firestore.QuerySnapshot) => {
         this.zone.run(() => {
           this.images = [];
+          this.myImageurls = [];
           snapshot.forEach(docSnap =>
-            this.images.push({ id: docSnap.id, name: this.tempFolderPath + '/' + docSnap.data().name, role: docSnap.data().name }));
-          subscriber.next(this.images, this.getImages(this.images));
+            //this.images.push({ id: docSnap.id, name: this.tempFolderPath + '/' + docSnap.data().name, role: docSnap.data().name })
+            this.getDownloadUrl('uploads/' + docSnap.data().name).then(data => {
+              this.images.push({ id: docSnap.id, name: data, role: docSnap.data().name })
+              this.myImageurls.push(data);
+            })
+          );
+          subscriber.next(this.images);
         });
       });
     });
@@ -171,7 +178,14 @@ export class FirebaseService {
       }
     ).catch(this.handleErrors);
   }
-
+  getDownloadUrls(items: Array<Item>) {
+    console.log('inside get urls');
+    items.forEach(value => {
+      this.getDownloadUrl('uploads/' + value.role).then(value => {
+        console.log(value);
+      });;
+    })
+  }
   getDownloadUrl(remoteFilePath: string): Promise<any> {
     return firebase.storage.getDownloadUrl({
       remoteFullPath: remoteFilePath
@@ -188,5 +202,9 @@ export class FirebaseService {
   handleErrors(error) {
     console.log(JSON.stringify(error));
     return Promise.reject(error.message);
+  }
+
+  deleteLocalImages() {
+
   }
 }

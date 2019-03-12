@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import * as fs from "file-system";
 import * as imagepicker from "nativescript-imagepicker";
 import { knownFolders, path } from "file-system";
@@ -12,6 +12,8 @@ import { ScrollEventData, ScrollView } from "tns-core-modules/ui/scroll-view";
 import { RouterExtensions } from 'nativescript-angular/router/router-extensions';
 import { Image } from "tns-core-modules/ui/image";
 import { EventData } from 'tns-core-modules/ui/page/page';
+import { forEach } from '@angular/router/src/utils/collection';
+import { stringify } from '@angular/core/src/util';
 const PhotoViewer = require("nativescript-photoviewer");
 
 @Component({
@@ -20,13 +22,14 @@ const PhotoViewer = require("nativescript-photoviewer");
   styleUrls: ['./images.component.css'],
   moduleId: module.id,
 })
-export class ImagesComponent implements OnInit {
-  imageFromURL1 = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/NativeScript_logo.png/220px-NativeScript_logo.png";
-  imageFromURL2 = "https://d2odgkulk9w7if.cloudfront.net/images/default-source/default-album/http-nativescript.png?sfvrsn=5f400ffe_0";
+export class ImagesComponent implements OnInit, OnDestroy {
+  imageFromURL1 = "https://firebasestorage.googleapis.com/v0/b/decision-maker-app.appspot.com/o/uploads%2Fbox.png?alt=media&token=65d57a78-8069-4bcf-ac4d-8be87cac63d2";
+  imageFromURL2 = "https://firebasestorage.googleapis.com/v0/b/decision-maker-app.appspot.com/o/uploads%2Fbox.png?alt=media&token=65d57a78-8069-4bcf-ac4d-8be87cac63d2";
   tempFolderPath = fs.knownFolders.documents().path;
   imagesToShow: string[] = [];
   public event = new BehaviorSubject<any>({});
   private url: string;
+  tempurl: string = '';
   private session: any;
   public showWelcome = true;
   public currentFileNameBeingUploaded = "";
@@ -53,7 +56,7 @@ export class ImagesComponent implements OnInit {
     this.session = bgHttp.session("image-upload");
   }
   ngOnInit() {
-    //this.firebaseService.getImageNames();
+    this.firebaseService.getImageNames();
   }
   public onSelectImageTap() {
     let context = imagepicker.create({
@@ -182,7 +185,7 @@ export class ImagesComponent implements OnInit {
       myImages.push(image.name);
     });
 
-    photoViewer.showViewer(myImages);
+    photoViewer.showViewer(this.firebaseService.myImageurls);
   }
 
   galleryShowing() {
@@ -191,6 +194,10 @@ export class ImagesComponent implements OnInit {
   logout() {
     this.firebaseService.logout();
     this.routerExtensions.navigate(["/"], { clearHistory: true });
+  }
+  ngOnDestroy() {
+    console.log('deleting images');
+    //this.firebaseService.deleteLocalImages(); 
   }
 
 
