@@ -14,6 +14,8 @@ import { Image } from "tns-core-modules/ui/image";
 import { EventData } from 'tns-core-modules/ui/page/page';
 import { forEach } from '@angular/router/src/utils/collection';
 import { stringify } from '@angular/core/src/util';
+import { alert, confirm } from "ui/dialogs";
+import { Item } from "../item/item";
 const PhotoViewer = require("nativescript-photoviewer");
 
 @Component({
@@ -186,6 +188,17 @@ export class ImagesComponent implements OnInit, OnDestroy {
     });
 
     photoViewer.showViewer(this.firebaseService.myImageurls);
+  }
+  imageoptions(image: Item) {
+    confirm({
+      message: "Are you sure you want to delete this image?",
+      okButtonText: "Yes",
+      cancelButtonText: "Cancel"
+    }).then(result => {
+      // result argument is boolean
+      this.firebaseService.deleteImagesFromFirebase(image.role);
+      this.firebaseService.firestoreDelete('imagenames', image.id);
+    });
   }
 
   galleryShowing() {

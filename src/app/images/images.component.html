@@ -5,8 +5,8 @@
 
 <ScrollView height="100%">
   <FlexboxLayout flexWrap="wrap" justifyContent="space-around" width="100%">
-    <Image (tap)="openGallery(i)" *ngFor="let image of firebaseService.myImages$ | async index as i" [src]="image.name"
-      width="100" height="100">
+    <Image (tap)="openGallery(i)" (longpress)="imageoptions(image)"
+      *ngFor="let image of firebaseService.myImages$ | async index as i" [src]="image.name" width="100" height="100">
     </Image>
   </FlexboxLayout>
 </ScrollView>

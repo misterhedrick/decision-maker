@@ -207,4 +207,17 @@ export class FirebaseService {
   deleteLocalImages() {
 
   }
+
+  deleteImagesFromFirebase(imagename: string) {
+    firebase.storage.deleteFile({
+      remoteFullPath: 'uploads/' + imagename
+    }).then(
+      function () {
+        console.log("File deleted.");
+      },
+      function (error) {
+        console.log("File deletion Error: " + error);
+      }
+    );
+  }
 }
