@@ -25,6 +25,8 @@ export class FirebaseService {
   public images: Array<Item> = [];
   public myImages$: Observable<Array<Item>>;
   public myImageurls: Array<String> = [];
+  public myBase64$: Observable<Array<Item>>;
+  public base64Images: Array<Item> = [];
   tempFolderPath = fs.knownFolders.documents().path;
 
   public add(mainlist: string, listname: string, name: string): void {
@@ -69,7 +71,34 @@ export class FirebaseService {
       .catch(err => console.log('Updating', docName, 'failed, error:', JSON.stringify(err)));
   }
 
-
+  public uploadbase64() {
+    // Base64 formatted string
+    const message = '5b6p5Y+344GX44G+44GX44Gf77yB44GK44KB44Gn44Go44GG77yB';
+    // Create a root reference
+    const storageRef = fb.firestore().collection('images');
+    // Create a reference to 'images/mountains.jpg'
+    const ExpImagesRef = storageRef.doc('mountains.jpg');
+    ExpImagesRef.set({ 'base64': message, 'mimetype': 'img/jpg' }).then(() => {
+      console.log('Uploaded a base64 string!');
+    })
+  }
+  public testbase64() {
+  }
+  public getbase64images() {
+    this.myImages$ = Observable.create(subscriber => {
+      const colRef: firestore.CollectionReference = fb.firestore().collection('images');
+      colRef.onSnapshot((snapshot: firestore.QuerySnapshot) => {
+        this.zone.run(() => {
+          this.base64Images = [];
+          snapshot.forEach(docSnap =>
+            //this.images.push({ id: docSnap.id, name: this.tempFolderPath + '/' + docSnap.data().name, role: docSnap.data().name })
+            console.log(docSnap.data())
+          );
+          subscriber.next(this.base64Images);
+        });
+      });
+    });
+  }
 
   public uploadFile(imagePath: string, filename: string, file?: any): Promise<any> {
     //let imagePath = knownFolders.temp().getFolder("100APPLE").path
