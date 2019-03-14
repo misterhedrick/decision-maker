@@ -77,22 +77,6 @@ export class FirebaseService {
       })
       .catch(err => console.log('Updating', docName, 'failed, error:', JSON.stringify(err)));
   }
-
-  public uploadbase64(path: string) {
-    // Base64 formatted string
-    const tempImageSource = <ImageSource>fromFile(path);
-    const message = tempImageSource.toBase64String('png');
-    //const message = '5b6p5Y+344GX44G+44GX44Gf77yB44GK44KB44Gn44Go44GG77yB';
-    // Create a root reference
-    const storageRef = fb.firestore().collection('images');
-    // Create a reference to 'images/mountains.jpg'
-    const ExpImagesRef = storageRef.doc('mountains.jpg');
-    ExpImagesRef.set({ 'base64': message }).then(() => {
-      console.log('Uploaded a base64 string!');
-    })
-  }
-  public testbase64() {
-  }
   public getbase64images() {
     this.myBase64$ = Observable.create(subscriber => {
       const colRef: firestore.CollectionReference = fb.firestore().collection('images');
@@ -121,8 +105,22 @@ export class FirebaseService {
         // console.log("Percentage complete: " + status.percentageCompleted);
       }
     }).then(() => {
-      this.add('imagenames', filename);
+      //this.add('imagenames', filename);
+      this.removeLocalImages(filename);
     })
+  }
+
+  removeLocalImages(filename: string) {
+    let documents = knownFolders.documents();
+    let file = documents.getFile(filename);
+    file.remove()
+      .then(res => {
+        // Success removing the file.
+        console.log("File successfully deleted!");
+      }).catch(err => {
+        console.log(err.stack);
+      });
+    console.log('removing local images');
   }
   getImageNames(): void {
     this.myImages$ = Observable.create(subscriber => {

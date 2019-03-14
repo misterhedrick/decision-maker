@@ -99,10 +99,9 @@ export class ImagesComponent implements OnInit, OnDestroy {
         if (imageAsset) {
           this.getImageFilePath(imageAsset).then((path) => {
             console.log(`path: ${path}`);
-            //this.uploadImage(path);
+            this.uploadImage(path);
             const tempImageSource = <ImageSource>fromFile(path);
             const message = tempImageSource.toBase64String('jpg', 5);
-            //this.firebaseService.uploadbase64(path);
             this.firebaseService.add('images', message);
           });
         }
@@ -140,6 +139,7 @@ export class ImagesComponent implements OnInit, OnDestroy {
     console.log('filename', this.currentFileNameBeingUploaded);
     this.firebaseService.uploadFile(path, this.currentFileNameBeingUploaded).then((uploadedFile: any) => {
       //get downloadURL and store it as a full path;
+
     }, (error: any) => {
       alert('File upload error: ' + error);
     });
