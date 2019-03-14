@@ -92,7 +92,7 @@ export class ItemsComponent implements OnInit {
             cancelButtonText: "Cancel"
         }).then((data) => {
             if (data.result) {
-                this.firebaseService.add('picklists', 'restaurants', data.text.trim())
+                this.firebaseService.add('restaurants', data.text.trim())
             }
         });
     }

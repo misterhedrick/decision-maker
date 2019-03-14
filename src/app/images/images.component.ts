@@ -4,9 +4,9 @@ import * as imagepicker from "nativescript-imagepicker";
 import { knownFolders, path } from "file-system";
 import * as bgHttp from "nativescript-background-http";
 import { isIOS } from "platform";
-import { of, BehaviorSubject } from 'rxjs';
+import { of, BehaviorSubject, from } from 'rxjs';
 import { sampleTime, concatMap, scan, map } from 'rxjs/operators';
-import { ImageSource } from 'tns-core-modules/image-source'
+import { ImageSource, fromBase64, fromFile } from 'tns-core-modules/image-source'
 import { FirebaseService } from "../services/firebase.service";
 import { ScrollEventData, ScrollView } from "tns-core-modules/ui/scroll-view";
 import { RouterExtensions } from 'nativescript-angular/router/router-extensions';
@@ -35,6 +35,8 @@ export class ImagesComponent implements OnInit, OnDestroy {
   private session: any;
   public showWelcome = true;
   public currentFileNameBeingUploaded = "";
+  public base64ImageSource: ImageSource;
+  public base64ImageSource2: ImageSource;
   public eventLog = this.event.pipe(
     sampleTime(200),
     concatMap(value => of(value)),
@@ -59,6 +61,14 @@ export class ImagesComponent implements OnInit, OnDestroy {
   }
   ngOnInit() {
     this.firebaseService.getImageNames();
+    //this.base64ImageSource = <ImageSource>fromFile('/Users/e060341/Library/Developer/CoreSimulator/Devices/1239A73A-8063-4144-B85D-FBFBE4811E1F/data/Containers/Data/Application/60599D96-7E70-4D73-9DA0-6BF02C65971F/Documents/1552573926978.jpg');
+    //this.firebaseService.base64ImageString = this.base64ImageSource.toBase64String('jpg');
+    this.firebaseService.getbase64images();
+  }
+
+  teststring() {
+    console.log('base 64 image string', this.firebaseService.base64ImageString)
+    this.base64ImageSource2 = fromBase64(this.firebaseService.base64ImageString);
   }
   public onSelectImageTap() {
     let context = imagepicker.create({
@@ -89,7 +99,11 @@ export class ImagesComponent implements OnInit, OnDestroy {
         if (imageAsset) {
           this.getImageFilePath(imageAsset).then((path) => {
             console.log(`path: ${path}`);
-            this.uploadImage(path);
+            //this.uploadImage(path);
+            const tempImageSource = <ImageSource>fromFile(path);
+            const message = tempImageSource.toBase64String('jpg', 5);
+            //this.firebaseService.uploadbase64(path);
+            this.firebaseService.add('images', message);
           });
         }
       }).catch(function (e) {

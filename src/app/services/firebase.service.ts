@@ -10,12 +10,18 @@ import { share } from 'rxjs/operators';
 import { knownFolders, path, Folder, File } from "tns-core-modules/file-system";
 import * as fs from "file-system";
 import { Item } from "../item/item";
+import { ImageSource, fromBase64, fromFile } from "image-source";
+import { Image } from "tns-core-modules/ui/image";
+import { ImageModel } from "../item/imageModel";
+
 @Injectable()
 export class FirebaseService {
   constructor(
     private zone: NgZone,
     private utils: UtilsService
-  ) { }
+  ) {
+    this.getbase64images();
+  }
 
   items: BehaviorSubject<Array<Gift>> = new BehaviorSubject([]);
 
@@ -25,12 +31,13 @@ export class FirebaseService {
   public images: Array<Item> = [];
   public myImages$: Observable<Array<Item>>;
   public myImageurls: Array<String> = [];
-  public myBase64$: Observable<Array<Item>>;
-  public base64Images: Array<Item> = [];
+  public myBase64$: Observable<Array<ImageModel>>;
+  public base64Images: Array<ImageModel> = [];
+  public base64ImageString: string;
   tempFolderPath = fs.knownFolders.documents().path;
 
-  public add(mainlist: string, listname: string, name: string): void {
-    fb.firestore().collection(listname)
+  public add(col: string, name: string): void {
+    fb.firestore().collection(col)
       .add({ name: name })
       .then(() => {
         console.log('added');
@@ -71,28 +78,32 @@ export class FirebaseService {
       .catch(err => console.log('Updating', docName, 'failed, error:', JSON.stringify(err)));
   }
 
-  public uploadbase64() {
+  public uploadbase64(path: string) {
     // Base64 formatted string
-    const message = '5b6p5Y+344GX44G+44GX44Gf77yB44GK44KB44Gn44Go44GG77yB';
+    const tempImageSource = <ImageSource>fromFile(path);
+    const message = tempImageSource.toBase64String('png');
+    //const message = '5b6p5Y+344GX44G+44GX44Gf77yB44GK44KB44Gn44Go44GG77yB';
     // Create a root reference
     const storageRef = fb.firestore().collection('images');
     // Create a reference to 'images/mountains.jpg'
     const ExpImagesRef = storageRef.doc('mountains.jpg');
-    ExpImagesRef.set({ 'base64': message, 'mimetype': 'img/jpg' }).then(() => {
+    ExpImagesRef.set({ 'base64': message }).then(() => {
       console.log('Uploaded a base64 string!');
     })
   }
   public testbase64() {
   }
   public getbase64images() {
-    this.myImages$ = Observable.create(subscriber => {
+    this.myBase64$ = Observable.create(subscriber => {
       const colRef: firestore.CollectionReference = fb.firestore().collection('images');
       colRef.onSnapshot((snapshot: firestore.QuerySnapshot) => {
         this.zone.run(() => {
           this.base64Images = [];
           snapshot.forEach(docSnap =>
+            //this.base64ImageSource = fromBase64(docSnap.data().base64)
             //this.images.push({ id: docSnap.id, name: this.tempFolderPath + '/' + docSnap.data().name, role: docSnap.data().name })
-            console.log(docSnap.data())
+            //this.base64ImageString = docSnap.data().name
+            this.base64Images.push({ id: docSnap.id, name: fromBase64(docSnap.data().name), role: docSnap.data().name })
           );
           subscriber.next(this.base64Images);
         });
@@ -102,7 +113,6 @@ export class FirebaseService {
 
   public uploadFile(imagePath: string, filename: string, file?: any): Promise<any> {
     //let imagePath = knownFolders.temp().getFolder("100APPLE").path
-
     return firebase.storage.uploadFile({
       remoteFullPath: 'uploads/' + filename,
       localFullPath: imagePath,
@@ -111,7 +121,7 @@ export class FirebaseService {
         // console.log("Percentage complete: " + status.percentageCompleted);
       }
     }).then(() => {
-      this.add('null', 'imagenames', filename);
+      this.add('imagenames', filename);
     })
   }
   getImageNames(): void {
