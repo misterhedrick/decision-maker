@@ -60,7 +60,6 @@ export class ImagesComponent implements OnInit, OnDestroy {
     this.session = bgHttp.session("image-upload");
   }
   ngOnInit() {
-    this.firebaseService.getImageNames();
     //this.base64ImageSource = <ImageSource>fromFile('/Users/e060341/Library/Developer/CoreSimulator/Devices/1239A73A-8063-4144-B85D-FBFBE4811E1F/data/Containers/Data/Application/60599D96-7E70-4D73-9DA0-6BF02C65971F/Documents/1552573926978.jpg');
     //this.firebaseService.base64ImageString = this.base64ImageSource.toBase64String('jpg');
     this.firebaseService.getbase64images();
@@ -197,9 +196,9 @@ export class ImagesComponent implements OnInit, OnDestroy {
     photoViewer.startIndex = index; // start index for the fullscreen gallery
     // Add to array and pass to showViewer
     var myImages = [];
-    this.firebaseService.images.forEach(function (image) {
-      myImages.push(image.name);
-    });
+    // this.firebaseService.images.forEach(function (image) {
+    //   myImages.push(image.name);
+    // });
 
     photoViewer.showViewer(this.firebaseService.myImageurls);
   }
@@ -210,7 +209,7 @@ export class ImagesComponent implements OnInit, OnDestroy {
       cancelButtonText: "Cancel"
     }).then(result => {
       // result argument is boolean
-      this.firebaseService.deleteImagesFromFirebase(image.role);
+      this.firebaseService.firestoreDelete('images', image.id);
       this.firebaseService.firestoreDelete('imagenames', image.id);
     });
   }
