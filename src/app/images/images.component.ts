@@ -24,9 +24,7 @@ const PhotoViewer = require("nativescript-photoviewer");
   styleUrls: ['./images.component.css'],
   moduleId: module.id,
 })
-export class ImagesComponent implements OnInit, OnDestroy {
-  imageFromURL1 = "https://firebasestorage.googleapis.com/v0/b/decision-maker-app.appspot.com/o/uploads%2Fbox.png?alt=media&token=65d57a78-8069-4bcf-ac4d-8be87cac63d2";
-  imageFromURL2 = "https://firebasestorage.googleapis.com/v0/b/decision-maker-app.appspot.com/o/uploads%2Fbox.png?alt=media&token=65d57a78-8069-4bcf-ac4d-8be87cac63d2";
+export class ImagesComponent implements OnDestroy {
   tempFolderPath = fs.knownFolders.documents().path;
   imagesToShow: string[] = [];
   public event = new BehaviorSubject<any>({});
@@ -37,16 +35,6 @@ export class ImagesComponent implements OnInit, OnDestroy {
   public currentFileNameBeingUploaded = "";
   public base64ImageSource: ImageSource;
   public base64ImageSource2: ImageSource;
-  public gallerypath = path.join(this.tempFolderPath, '/tempgallery');
-  public eventLog = this.event.pipe(
-    sampleTime(200),
-    concatMap(value => of(value)),
-    scan((acc, logEntry) => {
-      acc.push(logEntry);
-      return acc;
-    }, []),
-    // emit only logs for the this.currentFileNameBeingUploaded
-    map(allLogs => allLogs.filter(logEntry => !!logEntry && logEntry.eventTitle && logEntry.eventTitle.indexOf(this.currentFileNameBeingUploaded) > 0)));
 
   constructor(public firebaseService: FirebaseService, private routerExtensions: RouterExtensions) {
     // NOTE: using https://httpbin.org/post for testing purposes,
@@ -59,17 +47,6 @@ export class ImagesComponent implements OnInit, OnDestroy {
       this.url = "http://www.csm-testcenter.org/test";
     }
     this.session = bgHttp.session("image-upload");
-  }
-  ngOnInit() {
-    //this.base64ImageSource = <ImageSource>fromFile('/Users/e060341/Library/Developer/CoreSimulator/Devices/1239A73A-8063-4144-B85D-FBFBE4811E1F/data/Containers/Data/Application/60599D96-7E70-4D73-9DA0-6BF02C65971F/Documents/1552573926978.jpg');
-    //this.firebaseService.base64ImageString = this.base64ImageSource.toBase64String('jpg');
-    fs.Folder.fromPath(this.gallerypath);
-    this.firebaseService.myBase64$.forEach(data =>
-      data.forEach(img => {
-        //img.name.saveToFile(this.gallerypath + '/123.jpg', 'jpg');
-        //this.firebaseService.myImageurls.push(this.gallerypath + '/123.jpg');
-      })
-    );
   }
 
   getNewImageName(): Promise<string> {
