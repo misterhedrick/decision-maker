@@ -213,14 +213,16 @@ export class ImagesComponent implements OnInit, OnDestroy {
     photoViewer.showViewer(myImages);
   }
   imageoptions(image: Item) {
-    confirm({
+    let options = {
       message: "Are you sure you want to delete this image?",
       okButtonText: "Yes",
-      cancelButtonText: "Cancel"
-    }).then(result => {
-      // result argument is boolean
-      this.firebaseService.firestoreDelete('images', image.id);
-      this.firebaseService.firestoreDelete('imagenames', image.id);
+      cancelButtonText: "No"
+    };
+    confirm(options).then((result: boolean) => {
+      if (result) {
+        this.firebaseService.firestoreDelete('images', image.id);
+        this.firebaseService.firestoreDelete('imagenames', image.id);
+      }
     });
   }
 

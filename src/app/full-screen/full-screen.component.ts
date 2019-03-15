@@ -22,9 +22,7 @@ export class FullScreenComponent implements OnInit {
     );
   }
   onSwipe(args: SwipeGestureEventData) {
-    console.log(this.firebaseService.fullScreenImageIndex);
     if (args.direction === 1) {
-      console.log(this.firebaseService.base64Images.length);
       if (this.firebaseService.fullScreenImageIndex === 0) {
         this.firebaseService.fullScreenImageIndex = this.firebaseService.base64Images.length - 1;
       } else {

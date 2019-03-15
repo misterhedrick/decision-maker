@@ -45,7 +45,6 @@ export class ItemsComponent implements OnInit {
             if (data.result) {
                 this.firebaseService.login(data.userName, data.password)
                     .then(() => {
-                        console.log('user and pass', data.userName + '  ' + data.password);
                         this.isAuthenticating = false;
                         this.routerExtensions.navigate(["/images"], { clearHistory: true });
                     })
