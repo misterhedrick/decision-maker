@@ -21,10 +21,13 @@ export class FirebaseService {
     private utils: UtilsService
   ) {
     this.getbase64images();
+    firebase.getCurrentUser()
+      .then(user => this.uid = user.uid)
+      .catch(error => console.log("Trouble getting uid: " + error));
   }
 
   items: BehaviorSubject<Array<Gift>> = new BehaviorSubject([]);
-
+  public uid: string;
   private _allItems: Array<Gift> = [];
   public restaurants: Array<Item> = [];
   public myRestaurants$: Observable<Array<Item>>;
@@ -37,7 +40,7 @@ export class FirebaseService {
 
   public add(col: string, name: string): void {
     fb.firestore().collection(col)
-      .add({ name: name })
+      .add({ name: name, userId: this.uid })
       .then(() => {
         console.log('added');
       })
@@ -78,7 +81,7 @@ export class FirebaseService {
   }
   public getbase64images() {
     this.myBase64$ = Observable.create(subscriber => {
-      const colRef: firestore.CollectionReference = fb.firestore().collection('images');
+      const colRef: firestore.CollectionReference = fb.firestore().collection('images').where("userId", "==", this.uid);
       colRef.onSnapshot((snapshot: firestore.QuerySnapshot) => {
         this.zone.run(() => {
           this.base64Images = [];
@@ -154,23 +157,10 @@ export class FirebaseService {
     firebase.logout();
   }
 
-  resetPassword(email) {
-    return firebase.sendPasswordResetEmail(
-      email
-    ).then((result: any) => {
-      alert(JSON.stringify(result));
-    },
-      function (errorMessage: any) {
-        alert(errorMessage);
-      }
-    ).catch(this.handleErrors);
-  }
 
 
-  handleErrors(error) {
-    console.log(JSON.stringify(error));
-    return Promise.reject(error.message);
-  }
+
+
 
 
 }
