@@ -20,15 +20,19 @@ export class FirebaseService {
     private zone: NgZone,
     private utils: UtilsService
   ) {
-    console.log('getting images');
     this.getbase64images();
     firebase.getCurrentUser()
-      .then(user => this.uid = user.uid)
+      .then(user => {
+        this.uid = user.uid,
+          this.email = user.email
+      }
+      )
       .catch(error => console.log("Trouble getting uid: " + error));
   }
 
   items: BehaviorSubject<Array<Gift>> = new BehaviorSubject([]);
   public uid: string;
+  public email: string;
   private _allItems: Array<Gift> = [];
   public restaurants: Array<Item> = [];
   public myRestaurants$: Observable<Array<Item>>;
@@ -43,7 +47,6 @@ export class FirebaseService {
     fb.firestore().collection(col)
       .add({ name: name, userId: this.uid })
       .then(() => {
-        console.log('added');
       })
       .catch(err => console.log("error adding, error: " + err));
   }
@@ -67,7 +70,6 @@ export class FirebaseService {
     fb.firestore().collection(collectionName).doc(docName)
       .delete()
       .then(() => {
-        console.log(docName, 'from', collectionName, 'deleted');
       })
       .catch(err => console.log("Delete failed, error" + err));
   }
@@ -76,7 +78,6 @@ export class FirebaseService {
     fb.firestore().collection(collectionName).doc(docName)
       .update({ name: newValue })
       .then(() => {
-        console.log(docName, 'updated');
       })
       .catch(err => console.log('Updating', docName, 'failed, error:', JSON.stringify(err)));
   }
@@ -101,7 +102,7 @@ export class FirebaseService {
   public uploadFile(imagePath: string, filename: string, file?: any): Promise<any> {
     //let imagePath = knownFolders.temp().getFolder("100APPLE").path
     return firebase.storage.uploadFile({
-      remoteFullPath: 'uploads/' + filename,
+      remoteFullPath: 'uploads/' + this.email + '/' + filename,
       localFullPath: imagePath,
       onProgress: function (status) {
         // console.log("Uploaded fraction: " + status.fractionCompleted);
@@ -119,11 +120,9 @@ export class FirebaseService {
     file.remove()
       .then(res => {
         // Success removing the file.
-        console.log("File successfully deleted!");
       }).catch(err => {
         console.log(err.stack);
       });
-    console.log('removing local images');
   }
 
   register(user: User) {

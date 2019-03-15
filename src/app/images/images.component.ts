@@ -14,7 +14,7 @@ import { Image } from "tns-core-modules/ui/image";
 import { EventData } from 'tns-core-modules/ui/page/page';
 import { forEach } from '@angular/router/src/utils/collection';
 import { stringify } from '@angular/core/src/util';
-import { alert, confirm } from "ui/dialogs";
+import { alert, confirm, prompt, LoginOptions, login, LoginResult, PromptOptions, inputType, capitalizationType, PromptResult } from "ui/dialogs";
 import { Item } from "../item/item";
 const PhotoViewer = require("nativescript-photoviewer");
 
@@ -72,10 +72,24 @@ export class ImagesComponent implements OnInit, OnDestroy {
     );
   }
 
-  teststring() {
-    console.log('base 64 image string', this.firebaseService.base64ImageString)
-    this.base64ImageSource2 = fromBase64(this.firebaseService.base64ImageString);
+  getNewImageName(): Promise<string> {
+    return new Promise((resolve) => {
+      let options: PromptOptions = {
+        title: "Image Name",
+        okButtonText: "Add",
+        cancelButtonText: "Cancel",
+        cancelable: true,
+        inputType: inputType.text, // email, number, text, password, or email
+        capitalizationType: capitalizationType.none // all. none, sentences or words
+      };
+
+      prompt(options).then((result: PromptResult) => {
+        resolve(result.text)
+      });
+    });
+
   }
+
   public onSelectImageTap() {
     let context = imagepicker.create({
       mode: "single"
@@ -100,16 +114,16 @@ export class ImagesComponent implements OnInit, OnDestroy {
       .then((selection) => {
         this.showWelcome = false;
         // this.resetEventLog();
-        console.log("Selection done: " + JSON.stringify(selection));
         let imageAsset = selection.length > 0 ? selection[0] : null;
         if (imageAsset) {
-          this.getImageFilePath(imageAsset).then((path) => {
-            console.log(`path: ${path}`);
-            this.uploadImage(path);
-            const tempImageSource = <ImageSource>fromFile(path);
-            const message = tempImageSource.toBase64String('jpg', 5);
-            this.firebaseService.add('images', message);
-          });
+          this.getNewImageName().then((imageName) => {
+            this.getImageFilePath(imageAsset, imageName).then((path) => {
+              this.uploadImage(path);
+              const tempImageSource = <ImageSource>fromFile(path);
+              const message = tempImageSource.toBase64String('jpg', 5);
+              this.firebaseService.add('images', message);
+            });
+          })
         }
       }).catch(function (e) {
         console.log(e);
@@ -141,11 +155,7 @@ export class ImagesComponent implements OnInit, OnDestroy {
     // <----- multipart upload
 
     let task = this.session.uploadFile(file.path, request);
-    console.log('path', path);
-    console.log('filename', this.currentFileNameBeingUploaded);
     this.firebaseService.uploadFile(path, this.currentFileNameBeingUploaded).then((uploadedFile: any) => {
-      //get downloadURL and store it as a full path;
-
     }, (error: any) => {
       alert('File upload error: ' + error);
     });
@@ -170,13 +180,14 @@ export class ImagesComponent implements OnInit, OnDestroy {
     return request;
   }
 
-  private getImageFilePath(imageAsset): Promise<string> {
+  private getImageFilePath(imageAsset, imageName: string): Promise<string> {
     return new Promise((resolve) => {
+
       if (isIOS) { // create file from image asset and return its path
-        const tempFilePath = path.join(this.tempFolderPath, `${Date.now()}.jpg`);
+        const tempFilePath = path.join(this.tempFolderPath, imageName + '.jpg');
         const imageSource = new ImageSource();
         imageSource.fromAsset(imageAsset).then(source => {
-          const saved = source.saveToFile(tempFilePath, 'png');
+          const saved = source.saveToFile(tempFilePath, 'jpg');
           resolve(tempFilePath);
         });
       } else { // return imageAsset.android, since it's the path of the file
@@ -201,17 +212,6 @@ export class ImagesComponent implements OnInit, OnDestroy {
     this.firebaseService.fullScreenImageIndex = index;
     this.routerExtensions.navigate(["/full-screen"]);
   }
-  openGallery(index) {
-    let photoViewer = new PhotoViewer();
-    photoViewer.startIndex = index; // start index for the fullscreen gallery
-    // Add to array and pass to showViewer
-    var myImages = [];
-    // this.firebaseService.images.forEach(function (image) {
-    myImages.push('/Users/e060341/Library/Developer/CoreSimulator/Devices/1239A73A-8063-4144-B85D-FBFBE4811E1F/data/Containers/Data/Application/60599D96-7E70-4D73-9DA0-6BF02C65971F/Documents/tempgallery/123.jpg');
-    // });
-
-    photoViewer.showViewer(myImages);
-  }
   imageoptions(image: Item) {
     let options = {
       message: "Are you sure you want to delete this image?",
@@ -226,9 +226,6 @@ export class ImagesComponent implements OnInit, OnDestroy {
     });
   }
 
-  galleryShowing() {
-    console.log(`gallery Loaded`);
-  }
   logout() {
     this.firebaseService.logout();
     this.routerExtensions.navigate(["/"], { clearHistory: true });
