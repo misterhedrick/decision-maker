@@ -20,6 +20,7 @@ export class FirebaseService {
     private zone: NgZone,
     private utils: UtilsService
   ) {
+    console.log('getting images');
     this.getbase64images();
     firebase.getCurrentUser()
       .then(user => this.uid = user.uid)
@@ -31,10 +32,10 @@ export class FirebaseService {
   private _allItems: Array<Gift> = [];
   public restaurants: Array<Item> = [];
   public myRestaurants$: Observable<Array<Item>>;
-
   public myImageurls: Array<String> = [];
   public myBase64$: Observable<Array<ImageModel>>;
   public base64Images: Array<ImageModel> = [];
+  public fullScreenImageIndex: number = 0;
   public base64ImageString: string;
   tempFolderPath = fs.knownFolders.documents().path;
 
@@ -94,7 +95,7 @@ export class FirebaseService {
           subscriber.next(this.base64Images);
         });
       });
-    });
+    })
   }
 
   public uploadFile(imagePath: string, filename: string, file?: any): Promise<any> {

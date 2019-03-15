@@ -6,11 +6,13 @@ import { ItemsComponent } from "./item/items.component";
 import { LoginComponent } from "./auth/login/login.component";
 import { AuthGuard } from "./auth/auth-guard.service";
 import { ImagesComponent } from "./images/images.component";
+import { FullScreenComponent } from "./full-screen/full-screen.component";
 
 const routes: Routes = [
     { path: "", component: ItemsComponent },
     { path: "login", component: LoginComponent },
     { path: "images", component: ImagesComponent, canActivate: [AuthGuard] },
+    { path: "full-screen", component: FullScreenComponent, canActivate: [AuthGuard] },
     { path: "items", component: ItemsComponent }
 ];
 

@@ -37,6 +37,7 @@ export class ImagesComponent implements OnInit, OnDestroy {
   public currentFileNameBeingUploaded = "";
   public base64ImageSource: ImageSource;
   public base64ImageSource2: ImageSource;
+  public gallerypath = path.join(this.tempFolderPath, '/tempgallery');
   public eventLog = this.event.pipe(
     sampleTime(200),
     concatMap(value => of(value)),
@@ -62,7 +63,13 @@ export class ImagesComponent implements OnInit, OnDestroy {
   ngOnInit() {
     //this.base64ImageSource = <ImageSource>fromFile('/Users/e060341/Library/Developer/CoreSimulator/Devices/1239A73A-8063-4144-B85D-FBFBE4811E1F/data/Containers/Data/Application/60599D96-7E70-4D73-9DA0-6BF02C65971F/Documents/1552573926978.jpg');
     //this.firebaseService.base64ImageString = this.base64ImageSource.toBase64String('jpg');
-    this.firebaseService.getbase64images();
+    fs.Folder.fromPath(this.gallerypath);
+    this.firebaseService.myBase64$.forEach(data =>
+      data.forEach(img => {
+        //img.name.saveToFile(this.gallerypath + '/123.jpg', 'jpg');
+        //this.firebaseService.myImageurls.push(this.gallerypath + '/123.jpg');
+      })
+    );
   }
 
   teststring() {
@@ -190,17 +197,20 @@ export class ImagesComponent implements OnInit, OnDestroy {
       }
     });
   }
-
+  fullScreen(index: number) {
+    this.firebaseService.fullScreenImageIndex = index;
+    this.routerExtensions.navigate(["/full-screen"]);
+  }
   openGallery(index) {
     let photoViewer = new PhotoViewer();
     photoViewer.startIndex = index; // start index for the fullscreen gallery
     // Add to array and pass to showViewer
     var myImages = [];
     // this.firebaseService.images.forEach(function (image) {
-    //   myImages.push(image.name);
+    myImages.push('/Users/e060341/Library/Developer/CoreSimulator/Devices/1239A73A-8063-4144-B85D-FBFBE4811E1F/data/Containers/Data/Application/60599D96-7E70-4D73-9DA0-6BF02C65971F/Documents/tempgallery/123.jpg');
     // });
 
-    photoViewer.showViewer(this.firebaseService.myImageurls);
+    photoViewer.showViewer(myImages);
   }
   imageoptions(image: Item) {
     confirm({
@@ -222,8 +232,14 @@ export class ImagesComponent implements OnInit, OnDestroy {
     this.routerExtensions.navigate(["/"], { clearHistory: true });
   }
   ngOnDestroy() {
-    console.log('deleting images');
-    //this.firebaseService.deleteLocalImages(); 
+    // console.log('deleting images');
+    // let galleryfolder = fs.knownFolders.documents().getFolder('tempgallery');
+    // galleryfolder.remove()
+    //   .then(fres => {
+    //     // Success removing the folder.
+    //   }).catch(err => {
+    //     console.log(err.stack);
+    //   });
   }
 
 
