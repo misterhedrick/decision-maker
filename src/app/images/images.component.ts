@@ -1,20 +1,14 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import * as fs from "file-system";
+import { Component, OnDestroy } from '@angular/core';
+import * as fs from "tns-core-modules/file-system";
 import * as imagepicker from "nativescript-imagepicker";
-import { knownFolders, path } from "file-system";
+import { path } from "tns-core-modules/file-system";
 import * as bgHttp from "nativescript-background-http";
-import { isIOS } from "platform";
-import { of, BehaviorSubject, from } from 'rxjs';
-import { sampleTime, concatMap, scan, map } from 'rxjs/operators';
-import { ImageSource, fromBase64, fromFile } from 'tns-core-modules/image-source'
+import { isIOS } from "tns-core-modules/platform";
+import { BehaviorSubject } from 'rxjs';
+import { ImageSource, fromFile } from 'tns-core-modules/image-source'
 import { FirebaseService } from "../services/firebase.service";
-import { ScrollEventData, ScrollView } from "tns-core-modules/ui/scroll-view";
 import { RouterExtensions } from 'nativescript-angular/router/router-extensions';
-import { Image } from "tns-core-modules/ui/image";
-import { EventData } from 'tns-core-modules/ui/page/page';
-import { forEach } from '@angular/router/src/utils/collection';
-import { stringify } from '@angular/core/src/util';
-import { alert, confirm, prompt, LoginOptions, login, LoginResult, PromptOptions, inputType, capitalizationType, PromptResult } from "ui/dialogs";
+import { alert, confirm, prompt, PromptOptions, inputType, capitalizationType, PromptResult } from "tns-core-modules/ui/dialogs";
 import { Item } from "../item/item";
 const PhotoViewer = require("nativescript-photoviewer");
 

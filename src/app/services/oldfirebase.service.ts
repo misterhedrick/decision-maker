@@ -1,18 +1,11 @@
 import { Injectable, NgZone, OnInit } from "@angular/core";
-import { User, Gift } from "../models";
-import { BackendService } from "./backend.service";
-import firebase = require("nativescript-plugin-firebase");
+import { firebase } from 'nativescript-plugin-firebase/firebase-common';
 const fb = require("nativescript-plugin-firebase/app");
 import { firestore } from "nativescript-plugin-firebase";
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable } from 'rxjs';
 import { UtilsService } from './utils.service';
-import { share } from 'rxjs/operators';
-import { knownFolders, path, Folder, File } from "tns-core-modules/file-system";
-import * as fs from "file-system";
+import * as fs from "tns-core-modules/file-system";
 import { Item } from "../item/item";
-import { ImageSource, fromBase64, fromFile } from "image-source";
-import { Image } from "tns-core-modules/ui/image";
-import { ImageModel } from "../item/imageModel";
 
 @Injectable()
 export class FirebaseService {
@@ -104,17 +97,17 @@ export class FirebaseService {
           console.log(errorMessage);
         });
   }
-  resetPassword(email) {
-    return firebase.sendPasswordResetEmail(
-      email
-    ).then((result: any) => {
-      alert(JSON.stringify(result));
-    },
-      function (errorMessage: any) {
-        alert(errorMessage);
-      }
-    ).catch(this.handleErrors);
-  }
+  // resetPassword(email) {
+  //   return firebase.sendPasswordResetEmail(
+  //     email
+  //   ).then((result: any) => {
+  //     alert(JSON.stringify(result));
+  //   },
+  //     function (errorMessage: any) {
+  //       alert(errorMessage);
+  //     }
+  //   ).catch(this.handleErrors);
+  // }
   handleErrors(error) {
     console.log(JSON.stringify(error));
     return Promise.reject(error.message);

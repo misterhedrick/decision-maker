@@ -5,10 +5,9 @@ import { ItemService } from "./item.service";
 import { FirebaseService } from "../services/firebase.service";
 import { Router } from "@angular/router";
 import { RouterExtensions } from 'nativescript-angular/router/router-extensions';
-import { alert, login, LoginResult, LoginOptions } from "ui/dialogs";
-import { prompt } from "ui/dialogs";
+import { alert, login } from "tns-core-modules/ui/dialogs";
+import { prompt } from "tns-core-modules/ui/dialogs";
 import { SwipeGestureEventData } from "tns-core-modules/ui/gestures/gestures";
-import { User } from "../models";
 
 @Component({
     selector: "ns-items",

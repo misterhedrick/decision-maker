@@ -4,8 +4,7 @@ import { platformNativeScriptDynamic } from "nativescript-angular/platform";
 import { AppModule } from "./app/app.module";
 import { BackendService } from "./app/services/backend.service";
 
-import firebase = require("nativescript-plugin-firebase");
-
+import { firebase } from 'nativescript-plugin-firebase/firebase-common';
 firebase.init({
   //persist should be set to false as otherwise numbers aren't returned during livesync
   persist: false,

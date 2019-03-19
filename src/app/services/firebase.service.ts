@@ -1,17 +1,15 @@
-import { Injectable, NgZone, OnInit } from "@angular/core";
+import { Injectable, NgZone } from "@angular/core";
 import { User, Gift } from "../models";
 import { BackendService } from "./backend.service";
-import firebase = require("nativescript-plugin-firebase");
+import { firebase } from 'nativescript-plugin-firebase/firebase-common';
 const fb = require("nativescript-plugin-firebase/app");
 import { firestore } from "nativescript-plugin-firebase";
 import { Observable, BehaviorSubject } from 'rxjs';
 import { UtilsService } from './utils.service';
-import { share } from 'rxjs/operators';
-import { knownFolders, path, Folder, File } from "tns-core-modules/file-system";
-import * as fs from "file-system";
+import { knownFolders } from "tns-core-modules/file-system";
+import * as fs from "tns-core-modules/file-system";
 import { Item } from "../item/item";
-import { ImageSource, fromBase64, fromFile } from "image-source";
-import { Image } from "tns-core-modules/ui/image";
+import { fromBase64 } from "tns-core-modules/image-source";
 import { ImageModel } from "../item/imageModel";
 
 @Injectable()
@@ -20,13 +18,14 @@ export class FirebaseService {
     private zone: NgZone,
     private utils: UtilsService
   ) {
-    this.getbase64images();
     firebase.getCurrentUser()
       .then(user => {
         this.uid = user.uid,
           this.email = user.email
       }
-      )
+      ).then(() => {
+        this.getbase64images();
+      })
       .catch(error => console.log("Trouble getting uid: " + error));
   }
 

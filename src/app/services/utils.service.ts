@@ -1,5 +1,5 @@
-import {Injectable, Inject} from '@angular/core';
-import * as fs from 'file-system';
+import { Injectable, Inject } from '@angular/core';
+import * as fs from 'tns-core-modules/file-system';
 
 @Injectable()
 export class UtilsService {
