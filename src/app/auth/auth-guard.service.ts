@@ -5,10 +5,10 @@ import { BackendService } from "../services/backend.service";
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private router: Router) { }
+  constructor(private router: Router, public bs: BackendService) { }
 
   canActivate() {
-    if (BackendService.isLoggedIn()) {
+    if (this.bs.isLoggedIn()) {
       return true;
     }
     else {

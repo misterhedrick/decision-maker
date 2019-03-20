@@ -3,12 +3,17 @@
         <Button text="Add" class="action-item"></Button>
     </ActionItem>
 </ActionBar>
-<GridLayout columns="*" rows="*, 50">
+<GridLayout *ngIf="isAuthenticated" columns="*" rows="*, 50">
     <ListView col="0" row="0" [items]="firebaseService.myRestaurants$ | async" class="list-group">
         <ng-template let-item="item"> -->
             <Label [text]="item.name" (swipe)="onSwipe($event, item.id)" (longpress)="editItem(item)"
                 class="list-group-item"></Label>
         </ng-template>
     </ListView>
-    <Button backgroundColor="green" col="0" row="1" text="Choose" (tap)="choose()" class="btn"></Button>
+    <Button backgroundColor="green" col="0" row="1" text="Choose" (longpress)="choose()" class="btn"></Button>
 </GridLayout>
+
+
+<FlexboxLayout *ngIf="!isAuthenticated" justifyContent="space-around" alignItems="stretch" height="50" width="100%">
+    <Button backgroundColor="green" text="Create User" (tap)="createUser()" class="btn"></Button>
+</FlexboxLayout>

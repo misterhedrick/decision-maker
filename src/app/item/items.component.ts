@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, AfterViewInit, AfterViewChecked } from "@angular/core";
 
 import { Item } from "./item";
 import { ItemService } from "./item.service";
@@ -8,6 +8,8 @@ import { RouterExtensions } from 'nativescript-angular/router/router-extensions'
 import { alert, login } from "tns-core-modules/ui/dialogs";
 import { prompt } from "tns-core-modules/ui/dialogs";
 import { SwipeGestureEventData } from "tns-core-modules/ui/gestures/gestures";
+import { BackendService } from "../services/backend.service";
+import { User } from "../models";
 
 @Component({
     selector: "ns-items",
@@ -17,14 +19,21 @@ import { SwipeGestureEventData } from "tns-core-modules/ui/gestures/gestures";
 export class ItemsComponent implements OnInit {
     items: Item[];
     isLoggingIn = true;
-    isAuthenticating = false;
-    // This pattern makes use of Angular’s dependency injection implementation to inject an instance of the ItemService service into this class.
-    // Angular knows about this service because it is included in your app’s main NgModule, defined in app.module.ts.
+    isAuthenticated = true;
     constructor(private itemService: ItemService, private routerExtensions: RouterExtensions, public firebaseService: FirebaseService,
-        private router: Router) { }
+        private router: Router, public bs: BackendService) { }
 
-    ngOnInit(): void {
-        this.firebaseService.getRestaurantsObservable();
+    ngOnInit() {
+        //this.bs.createNewUser();
+
+        // console.log(this.bs.mainUserExists());
+        // if (this.bs.mainUserExists()) {
+        //     this.isAuthenticated = true;
+        //     this.firebaseService.getRestaurantsObservable();
+        // } else {
+        //     this.isAuthenticated = false;
+        // }
+
         //this.items = this.itemService.getItems();
     }
     logout() {
@@ -32,7 +41,6 @@ export class ItemsComponent implements OnInit {
         this.routerExtensions.navigate(["/"], { clearHistory: true });
     }
     login() {
-
         login({
             title: "Login",
             message: "Enter your user and pw",
@@ -44,15 +52,49 @@ export class ItemsComponent implements OnInit {
             if (data.result) {
                 this.firebaseService.login(data.userName, data.password)
                     .then(() => {
-                        this.isAuthenticating = false;
+                        this.isAuthenticated = true;
                         this.routerExtensions.navigate(["/images"], { clearHistory: true });
                     })
                     .catch((message: any) => {
-                        this.isAuthenticating = false;
+                        this.isAuthenticated = false;
                     });
             }
         });
     }
+    createUser() {
+        login({
+            title: "Create User",
+            message: "Enter your user and pw",
+            okButtonText: "Create",
+            cancelButtonText: "Cancel",
+            userName: "user@nativescript.org",
+            password: "password"
+        }).then((data) => {
+            if (data.result) {
+                let tempuser = new User();
+                tempuser.email = data.userName;
+                tempuser.password = data.password;
+                this.signUp(tempuser).then(() => {
+                    this.isAuthenticated = true;
+                    this.firebaseService.getRestaurantsObservable();
+                });
+            }
+        });
+    }
+    signUp(user: User): Promise<string> {
+        return new Promise((resolve) => {
+            this.firebaseService.register(user)
+                .then(() => {
+                    this.bs.createUser(user);
+                    resolve('signedup');
+                })
+                .catch((message: any) => {
+                    alert(message);
+                });
+
+        });
+    }
+
     navigate() {
         this.routerExtensions.navigate(["/images"], { clearHistory: true });
     }

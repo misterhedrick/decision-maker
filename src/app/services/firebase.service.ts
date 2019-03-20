@@ -16,7 +16,8 @@ import { ImageModel } from "../item/imageModel";
 export class FirebaseService {
   constructor(
     private zone: NgZone,
-    private utils: UtilsService
+    private utils: UtilsService,
+    public bs: BackendService
   ) {
     firebase.getCurrentUser()
       .then(user => {
@@ -144,7 +145,7 @@ export class FirebaseService {
       email: user,
       password: pw
     }).then((result: any) => {
-      BackendService.token = result.uid;
+      this.bs.token = result.uid;
       return JSON.stringify(result);
     }, (errorMessage: any) => {
       alert(errorMessage);
@@ -152,7 +153,7 @@ export class FirebaseService {
   }
 
   logout() {
-    BackendService.token = "";
+    this.bs.token = "";
     firebase.logout();
   }
 
