@@ -5,7 +5,7 @@ import { User } from "../models";
 import * as fs from "tns-core-modules/file-system";
 import { File, path } from "tns-core-modules/file-system";
 
-const fileName = "/decisionmaker/userData.json";
+const fileName = "/backendFolder/userData.json";
 const documents = fs.knownFolders.documents();
 const file = documents.getFile(fileName);
 const filePath = path.join(documents.path, fileName);

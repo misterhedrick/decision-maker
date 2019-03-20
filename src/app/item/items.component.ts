@@ -74,8 +74,10 @@ export class ItemsComponent implements OnInit {
                 tempuser.email = data.userName;
                 tempuser.password = data.password;
                 this.signUp(tempuser).then(() => {
-                    this.isAuthenticated = true;
-                    this.firebaseService.getRestaurantsObservable();
+                    this.firebaseService.setEmail(data.userName).then(() => {
+                        this.isAuthenticated = true;
+                        this.firebaseService.getRestaurantsObservable();
+                    })
                 });
             }
         });
@@ -124,7 +126,6 @@ export class ItemsComponent implements OnInit {
     }
 
     addItem() {
-        //this.firebaseService.add('picklists', 'restaurants', 'hops');
         prompt({
             title: "Item Name",
             okButtonText: "Ok",

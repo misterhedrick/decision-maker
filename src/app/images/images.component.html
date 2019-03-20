@@ -1,18 +1,12 @@
 <ActionBar title=";)" class="action-bar">
   <ActionItem text="Logout" (tap)="logout()" ios.position="left"></ActionItem>
-  <ActionItem text="Logout" (tap)="logout()" ios.position="right" android.position="popup"></ActionItem>
+  <ActionItem text="Add" (tap)="onSelectImageTap()" ios.position="right" android.position="popup"></ActionItem>
 </ActionBar>
 
-
-
-
-<GridLayout columns="*" rows="*, 50">
-  <ScrollView height="100%">
-    <FlexboxLayout flexWrap="wrap" justifyContent="space-around" width="100%">
-      <Image (tap)="fullScreen(i)" (pan)="imageoptions(image)"
-        *ngFor="let image of firebaseService.myBase64$ | async index as i" [src]="image.name" width="100" height="100">
-      </Image>
-    </FlexboxLayout>
-  </ScrollView>
-  <Button backgroundColor="green" col="0" row="1" text="Add" (tap)="onSelectImageTap()" class="btn"></Button>
-</GridLayout>
+<ScrollView height="100%">
+  <FlexboxLayout flexWrap="wrap" justifyContent="space-around" width="100%">
+    <Image (tap)="fullScreen(i)" (pan)="imageoptions(image)"
+      *ngFor="let image of firebaseService.myBase64$ | async index as i" [src]="image.name" width="100" height="100">
+    </Image>
+  </FlexboxLayout>
+</ScrollView>
