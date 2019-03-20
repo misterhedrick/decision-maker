@@ -27,7 +27,8 @@ export class FirebaseService {
       ).then(() => {
         this.getbase64images();
       })
-      .catch(error => console.log("Trouble getting uid: " + error));
+      .catch(error => console.log("Trouble getting uid: " + error),
+        this.uid = this.bs.getMainUser());
   }
 
   items: BehaviorSubject<Array<Gift>> = new BehaviorSubject([]);
@@ -43,6 +44,12 @@ export class FirebaseService {
   public base64ImageString: string;
   tempFolderPath = fs.knownFolders.documents().path;
 
+  setUID(uid: string): Promise<boolean> {
+    return new Promise((resolve) => {
+      this.uid = uid;
+      resolve(true);
+    });
+  }
   public add(col: string, name: string): void {
     fb.firestore().collection(col)
       .add({ name: name, userId: this.uid })
@@ -54,7 +61,7 @@ export class FirebaseService {
 
   getRestaurantsObservable(): void {
     this.myRestaurants$ = Observable.create(subscriber => {
-      const colRef: firestore.CollectionReference = fb.firestore().collection("restaurants");
+      const colRef: firestore.CollectionReference = fb.firestore().collection("restaurants").where("userId", "==", this.uid);
       colRef.onSnapshot((snapshot: firestore.QuerySnapshot) => {
         this.zone.run(() => {
           this.restaurants = [];

@@ -24,15 +24,12 @@ export class ItemsComponent implements OnInit {
         private router: Router, public bs: BackendService) { }
 
     ngOnInit() {
-        let user = new User();
-        user.email = 'test1@email.com';
-        user.password = 'password';
-
-
         this.bs.mainUserExists().then((data) => {
-            if (data) {
+            if (data != '') {
                 this.isAuthenticated = true;
-                this.firebaseService.getRestaurantsObservable();
+                this.firebaseService.setUID(data).then(() => {
+                    this.firebaseService.getRestaurantsObservable();
+                });
             } else {
                 this.isAuthenticated = false;
             }

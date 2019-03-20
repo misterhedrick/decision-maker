@@ -3,20 +3,35 @@ import { Injectable } from "@angular/core";
 import * as applicationSettings from "tns-core-modules/application-settings";
 import { User } from "../models";
 import * as fs from "tns-core-modules/file-system";
+import { File, path } from "tns-core-modules/file-system";
 
 const fileName = "/decisionmaker/userData.json";
-const file = fs.knownFolders.documents().getFile(fileName);
+const documents = fs.knownFolders.documents();
+const file = documents.getFile(fileName);
+const filePath = path.join(documents.path, fileName);
 let doesMainUserExist: Boolean = false;
-let mainUser: string = '';
-export class BackendService {
 
+export class BackendService {
+  private mainUser: string = '';
   createNewUser(type: string, user: User): Promise<Boolean> {
     return new Promise((resolve) => {
-      file.readText().then(function (content) {
-        let jsonObject = JSON.parse(content);
-        jsonObject.users.push({ type: type, username: user.email });
-        file.writeText(JSON.stringify(jsonObject));
-      })
+      if (File.exists(filePath)) {
+        file.readText().then(function (content) {
+          if (content !== '') {
+            let jsonObject = JSON.parse(content);
+            jsonObject.users.push({ type: type, username: user.email });
+            file.writeText(JSON.stringify(jsonObject));
+          } else {
+            let jsonStr = { users: [{ type: type, username: user.email }] };
+            file.writeText(JSON.stringify(jsonStr));
+          }
+
+        })
+      } else {
+        let jsonStr = { users: [{ type: type, username: user.email }] };
+        file.writeText(JSON.stringify(jsonStr));
+      }
+
     });
     // clear data form the file
   }
@@ -25,27 +40,30 @@ export class BackendService {
   createUser(user: User) {
     applicationSettings.setString(user.password, user.email);
   }
-  mainUserExists(): Promise<Boolean> {
+  mainUserExists(): Promise<string> {
     return new Promise((resolve) => {
-      file.readText().then(function (content) {
-        let jsonObject = JSON.parse(content);
-        console.log(jsonObject);
-        jsonObject.users.forEach(element => {
-          if (element.type === 'mainuser') {
-            mainUser = element.username;
-            doesMainUserExist = true;
-            resolve(doesMainUserExist);
+      if (File.exists(filePath)) {
+        file.readText().then(function (content) {
+          if (content !== '') {
+            let jsonObject = JSON.parse(content);
+            jsonObject.users.forEach(element => {
+              if (element.type === 'mainuser') {
+                resolve(element.username);
+              }
+            })
           } else {
-            doesMainUserExist = false;
+            resolve('');
           }
-        })
-      }).then(() => {
-        resolve(doesMainUserExist);
-      });
+        }).then(() => {
+          //resolve(doesMainUserExist);
+        });
+      } else {
+        resolve('');
+      }
     });
   }
   getMainUser() {
-    return applicationSettings.getString('mainuser');
+    return this.mainUser;
   }
   setMainUser(mainuser: string, password: string) {
     applicationSettings.setString('mainuser', mainuser);

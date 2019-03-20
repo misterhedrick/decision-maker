@@ -10,7 +10,6 @@ import { FullScreenComponent } from "./full-screen/full-screen.component";
 
 const routes: Routes = [
     { path: "", component: ItemsComponent },
-    { path: "login", component: LoginComponent },
     { path: "images", component: ImagesComponent, canActivate: [AuthGuard] },
     { path: "full-screen", component: FullScreenComponent, canActivate: [AuthGuard] },
     { path: "items", component: ItemsComponent }
