@@ -19,16 +19,16 @@ export class FirebaseService {
     private utils: UtilsService,
     public bs: BackendService
   ) {
-    firebase.getCurrentUser()
-      .then(user => {
-        this.uid = user.uid,
-          this.email = user.email
-      }
-      ).then(() => {
-        this.getbase64images();
-      })
-      .catch(error => console.log("Trouble getting uid: " + error),
-        this.uid = this.bs.getMainUser());
+    // firebase.getCurrentUser()
+    //   .then(user => {
+    //     this.uid = user.uid,
+    //       this.email = user.email
+    //   }
+    //   ).then(() => {
+    //     this.getbase64images();
+    //   })
+    //   .catch(error => console.log("Trouble getting uid: " + error),
+    //     this.uid = this.bs.getMainUser());
   }
 
   items: BehaviorSubject<Array<Gift>> = new BehaviorSubject([]);
@@ -44,13 +44,21 @@ export class FirebaseService {
   public base64ImageString: string;
   tempFolderPath = fs.knownFolders.documents().path;
 
-  setUID(uid: string): Promise<boolean> {
+  setEmail(email: string): Promise<boolean> {
     return new Promise((resolve) => {
-      this.uid = uid;
+      this.email = email;
       resolve(true);
     });
   }
-  public add(col: string, name: string): void {
+  public addRestaurant(col: string, name: string): void {
+    fb.firestore().collection(col)
+      .add({ name: name, userId: this.email })
+      .then(() => {
+      })
+      .catch(err => console.log("error adding, error: " + err));
+  }
+
+  public addImage(col: string, name: string): void {
     fb.firestore().collection(col)
       .add({ name: name, userId: this.uid })
       .then(() => {
@@ -61,7 +69,7 @@ export class FirebaseService {
 
   getRestaurantsObservable(): void {
     this.myRestaurants$ = Observable.create(subscriber => {
-      const colRef: firestore.CollectionReference = fb.firestore().collection("restaurants").where("userId", "==", this.uid);
+      const colRef: firestore.CollectionReference = fb.firestore().collection("restaurants").where("userId", "==", this.email);
       colRef.onSnapshot((snapshot: firestore.QuerySnapshot) => {
         this.zone.run(() => {
           this.restaurants = [];
@@ -90,6 +98,7 @@ export class FirebaseService {
   }
   public getbase64images() {
     this.myBase64$ = Observable.create(subscriber => {
+      console.log(this.uid);
       const colRef: firestore.CollectionReference = fb.firestore().collection('images').where("userId", "==", this.uid);
       colRef.onSnapshot((snapshot: firestore.QuerySnapshot) => {
         this.zone.run(() => {
@@ -116,7 +125,7 @@ export class FirebaseService {
         // console.log("Percentage complete: " + status.percentageCompleted);
       }
     }).then(() => {
-      this.add('imagenames', filename);
+      this.addImage('imagenames', filename);
       this.removeLocalImages(filename);
     })
   }

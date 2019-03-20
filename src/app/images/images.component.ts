@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import * as fs from "tns-core-modules/file-system";
 import * as imagepicker from "nativescript-imagepicker";
 import { path } from "tns-core-modules/file-system";
@@ -10,6 +10,7 @@ import { FirebaseService } from "../services/firebase.service";
 import { RouterExtensions } from 'nativescript-angular/router/router-extensions';
 import { alert, confirm, prompt, PromptOptions, inputType, capitalizationType, PromptResult } from "tns-core-modules/ui/dialogs";
 import { Item } from "../item/item";
+import { firebase } from 'nativescript-plugin-firebase/firebase-common';
 const PhotoViewer = require("nativescript-photoviewer");
 
 @Component({
@@ -18,7 +19,7 @@ const PhotoViewer = require("nativescript-photoviewer");
   styleUrls: ['./images.component.css'],
   moduleId: module.id,
 })
-export class ImagesComponent implements OnDestroy {
+export class ImagesComponent implements OnInit, OnDestroy {
   tempFolderPath = fs.knownFolders.documents().path;
   imagesToShow: string[] = [];
   public event = new BehaviorSubject<any>({});
@@ -42,7 +43,17 @@ export class ImagesComponent implements OnDestroy {
     }
     this.session = bgHttp.session("image-upload");
   }
-
+  ngOnInit() {
+    firebase.getCurrentUser()
+      .then(user => {
+        this.firebaseService.uid = user.uid,
+          this.firebaseService.email = user.email
+      }
+      ).then(() => {
+        this.firebaseService.getbase64images();
+      })
+      .catch(error => console.log("Trouble getting uid: " + error));
+  }
   getNewImageName(): Promise<string> {
     return new Promise((resolve) => {
       let options: PromptOptions = {
@@ -92,7 +103,7 @@ export class ImagesComponent implements OnDestroy {
               this.uploadImage(path);
               const tempImageSource = <ImageSource>fromFile(path);
               const message = tempImageSource.toBase64String('jpg', 5);
-              this.firebaseService.add('images', message);
+              this.firebaseService.addImage('images', message);
             });
           })
         }

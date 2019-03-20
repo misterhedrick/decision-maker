@@ -27,7 +27,7 @@ export class ItemsComponent implements OnInit {
         this.bs.mainUserExists().then((data) => {
             if (data != '') {
                 this.isAuthenticated = true;
-                this.firebaseService.setUID(data).then(() => {
+                this.firebaseService.setEmail(data).then(() => {
                     this.firebaseService.getRestaurantsObservable();
                 });
             } else {
@@ -131,7 +131,7 @@ export class ItemsComponent implements OnInit {
             cancelButtonText: "Cancel"
         }).then((data) => {
             if (data.result) {
-                this.firebaseService.add('restaurants', data.text.trim())
+                this.firebaseService.addRestaurant('restaurants', data.text.trim())
             }
         });
     }
