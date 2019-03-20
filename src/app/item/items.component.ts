@@ -19,22 +19,24 @@ import { User } from "../models";
 export class ItemsComponent implements OnInit {
     items: Item[];
     isLoggingIn = true;
-    isAuthenticated = true;
+    isAuthenticated = false;
     constructor(private itemService: ItemService, private routerExtensions: RouterExtensions, public firebaseService: FirebaseService,
         private router: Router, public bs: BackendService) { }
 
     ngOnInit() {
-        //this.bs.createNewUser();
+        let user = new User();
+        user.email = 'test1@email.com';
+        user.password = 'password';
 
-        // console.log(this.bs.mainUserExists());
-        // if (this.bs.mainUserExists()) {
-        //     this.isAuthenticated = true;
-        //     this.firebaseService.getRestaurantsObservable();
-        // } else {
-        //     this.isAuthenticated = false;
-        // }
 
-        //this.items = this.itemService.getItems();
+        this.bs.mainUserExists().then((data) => {
+            if (data) {
+                this.isAuthenticated = true;
+                this.firebaseService.getRestaurantsObservable();
+            } else {
+                this.isAuthenticated = false;
+            }
+        });
     }
     logout() {
         this.firebaseService.logout();
@@ -85,7 +87,7 @@ export class ItemsComponent implements OnInit {
         return new Promise((resolve) => {
             this.firebaseService.register(user)
                 .then(() => {
-                    this.bs.createUser(user);
+                    this.bs.createNewUser('mainuser', user);
                     resolve('signedup');
                 })
                 .catch((message: any) => {

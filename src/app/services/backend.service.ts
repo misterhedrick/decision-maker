@@ -6,18 +6,18 @@ import * as fs from "tns-core-modules/file-system";
 
 const fileName = "/decisionmaker/userData.json";
 const file = fs.knownFolders.documents().getFile(fileName);
+let doesMainUserExist: Boolean = false;
+let mainUser: string = '';
 export class BackendService {
 
-  createNewUser() {
-    let data = [{ "id": "1", "value": "NativeScript" }];
-    file.writeText(JSON.stringify(data));
-
-    // read data from the file
-    file.readText().then(function (content) {
-      // content contains the data read from the file
-      console.log(JSON.parse(content));
+  createNewUser(type: string, user: User): Promise<Boolean> {
+    return new Promise((resolve) => {
+      file.readText().then(function (content) {
+        let jsonObject = JSON.parse(content);
+        jsonObject.users.push({ type: type, username: user.email });
+        file.writeText(JSON.stringify(jsonObject));
+      })
     });
-
     // clear data form the file
   }
 
@@ -25,8 +25,24 @@ export class BackendService {
   createUser(user: User) {
     applicationSettings.setString(user.password, user.email);
   }
-  mainUserExists() {
-    return applicationSettings.hasKey('mainuser');
+  mainUserExists(): Promise<Boolean> {
+    return new Promise((resolve) => {
+      file.readText().then(function (content) {
+        let jsonObject = JSON.parse(content);
+        console.log(jsonObject);
+        jsonObject.users.forEach(element => {
+          if (element.type === 'mainuser') {
+            mainUser = element.username;
+            doesMainUserExist = true;
+            resolve(doesMainUserExist);
+          } else {
+            doesMainUserExist = false;
+          }
+        })
+      }).then(() => {
+        resolve(doesMainUserExist);
+      });
+    });
   }
   getMainUser() {
     return applicationSettings.getString('mainuser');
