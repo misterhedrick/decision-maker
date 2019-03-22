@@ -13,6 +13,7 @@ let doesMainUserExist: Boolean = false;
 
 export class BackendService {
   private mainUser: string = '';
+  static token: any;
   createNewUser(type: string, user: User): Promise<Boolean> {
     return new Promise((resolve) => {
       if (File.exists(filePath)) {
@@ -20,16 +21,22 @@ export class BackendService {
           if (content !== '') {
             let jsonObject = JSON.parse(content);
             jsonObject.users.push({ type: type, username: user.email });
-            file.writeText(JSON.stringify(jsonObject));
+            file.writeText(JSON.stringify(jsonObject)).then(() => {
+              resolve(true);
+            });
           } else {
             let jsonStr = { users: [{ type: type, username: user.email }] };
-            file.writeText(JSON.stringify(jsonStr));
+            file.writeText(JSON.stringify(jsonStr)).then(() => {
+              resolve(true);
+            });
           }
 
         })
       } else {
         let jsonStr = { users: [{ type: type, username: user.email }] };
-        file.writeText(JSON.stringify(jsonStr));
+        file.writeText(JSON.stringify(jsonStr)).then(() => {
+          resolve(true);
+        });
       }
 
     });

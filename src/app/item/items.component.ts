@@ -45,8 +45,8 @@ export class ItemsComponent implements OnInit {
             message: "Enter your user and pw",
             okButtonText: "Login",
             cancelButtonText: "Cancel",
-            userName: "user@nativescript.org",
-            password: "password"
+            userName: this.firebaseService.email,
+            password: ""
         }).then((data) => {
             if (data.result) {
                 this.firebaseService.login(data.userName, data.password)
@@ -66,28 +66,34 @@ export class ItemsComponent implements OnInit {
             message: "Enter your user and pw",
             okButtonText: "Create",
             cancelButtonText: "Cancel",
-            userName: "user@nativescript.org",
-            password: "password"
+            userName: "",
+            password: ""
         }).then((data) => {
             if (data.result) {
                 let tempuser = new User();
                 tempuser.email = data.userName;
                 tempuser.password = data.password;
-                this.signUp(tempuser).then(() => {
-                    this.firebaseService.setEmail(data.userName).then(() => {
-                        this.isAuthenticated = true;
-                        this.firebaseService.getRestaurantsObservable();
-                    })
+                this.signUp(tempuser).then((success) => {
+                    if (success) {
+                        this.firebaseService.setEmail(data.userName).then(() => {
+                            this.isAuthenticated = true;
+                            this.firebaseService.getRestaurantsObservable();
+                        })
+                    }
                 });
             }
         });
     }
-    signUp(user: User): Promise<string> {
+    signUp(user: User): Promise<boolean> {
         return new Promise((resolve) => {
             this.firebaseService.register(user)
-                .then(() => {
-                    this.bs.createNewUser('mainuser', user);
-                    resolve('signedup');
+                .then((data) => {
+                    if (data) {
+                        this.bs.createNewUser('mainuser', user);
+                        resolve(true);
+                    } else {
+                        resolve(false)
+                    }
                 })
                 .catch((message: any) => {
                     alert(message);

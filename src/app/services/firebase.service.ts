@@ -141,18 +141,22 @@ export class FirebaseService {
       });
   }
 
-  register(user: User) {
-    return firebase.createUser({
-      email: user.email,
-      password: user.password
-    }).then(
-      function (result: any) {
-        return JSON.stringify(result);
-      },
-      function (errorMessage: any) {
-        alert(errorMessage);
-      }
-    )
+  register(user: User): Promise<boolean> {
+    return new Promise((resolve) => {
+      firebase.createUser({
+        email: user.email,
+        password: user.password
+      }).then(
+        function (result: any) {
+          resolve(result.additionalUserInfo.isNewUser);
+          //return JSON.stringify(result);
+        },
+        function (errorMessage: any) {
+          alert(errorMessage);
+          resolve(false)
+        }
+      )
+    });
   }
 
   login(user: string, pw: string) {
